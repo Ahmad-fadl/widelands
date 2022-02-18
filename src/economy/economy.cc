@@ -19,7 +19,7 @@
 #include "economy/economy.h"
 
 #include <memory>
-
+#include <fstream>
 #include "base/log.h"
 #include "base/macros.h"
 #include "base/wexception.h"
@@ -55,6 +55,8 @@ Economy::Economy(Player& player, Serial init_serial, WareWorker wwtype)
      type_(wwtype),
      request_timerid_(0),
      options_window_(nullptr) {
+	this->logs.open(std::to_string(this->serial_)+"logs.txt");
+	this->logs.close();
 	last_economy_serial_ = std::max(last_economy_serial_, serial_ + 1);
 	const TribeDescr& tribe = player.tribe();
 	DescriptionIndex const nr_wares_or_workers = wwtype == wwWARE ?
@@ -283,7 +285,9 @@ Warehouse* Economy::find_closest_warehouse(Flag& start,
  */
 void Economy::add_flag(Flag& flag) {
 	assert(flag.get_economy(type_) == nullptr);
-
+	this->logs.open(std::to_string(this->serial_)+"logs.txt");
+	this->logs << "("+std::to_string(flag.position_.x)+","+std::to_string(flag.position_.y)+")" + this->owner_.get_name() +"\n" ;
+	this->logs.close();
 	flags_.push_back(&flag);
 	flag.set_economy(this, type_);
 
