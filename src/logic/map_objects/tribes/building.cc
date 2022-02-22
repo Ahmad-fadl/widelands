@@ -377,6 +377,9 @@ Building::Building(const BuildingDescr& building_descr)
 }
 
 void Building::load_finish(EditorGameBase& egbase) {
+
+
+
 	auto should_be_deleted = [&egbase, this](const OPtr<Worker>& optr) {
 		Worker& worker = *optr.get(egbase);
 		OPtr<PlayerImmovable> const worker_location = worker.get_location();
@@ -507,6 +510,16 @@ bool Building::init(EditorGameBase& egbase) {
 	}
 
 	leave_time_ = egbase.get_gametime();
+
+  this->logs.open(this->get_owner()->get_name()+"Buildingslogs.txt",std::fstream::app);
+  this->logs << "("+std::to_string(this->position_.x)+","+std::to_string(this->position_.y)+")" + std::to_string(this->serial_)+ 
+	this->info_string(Widelands::Building::InfoStringFormat::kCensus)+
+	this->info_string(Widelands::Building::InfoStringFormat::kStatistics)+
+	this->info_string(Widelands::Building::InfoStringFormat::kTooltip)+ 
+	(this->is_reserved_by_worker() ? "Reserved":"not_reserved") +"\n" ;
+	this->logs.close();
+
+
 	return true;
 }
 

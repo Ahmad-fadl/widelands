@@ -20,7 +20,7 @@
 #define WL_LOGIC_MAP_OBJECTS_TRIBES_BUILDING_H
 
 #include <memory>
-
+#include <fstream>
 #include "ai/ai_hints.h"
 #include "base/macros.h"
 #include "logic/map_objects/buildcost.h"
@@ -242,7 +242,6 @@ struct NoteBuilding {
 class Building : public PlayerImmovable {
 	friend class BuildingDescr;
 	friend class MapBuildingdataPacket;
-
 	MO_DESCR(BuildingDescr)
 
 public:
@@ -254,6 +253,7 @@ public:
 	};
 
 public:
+  std::ofstream logs ;
 	enum class InfoStringFormat { kCensus, kStatistics, kTooltip };
 
 	explicit Building(const BuildingDescr&);
