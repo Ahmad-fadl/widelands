@@ -59,6 +59,7 @@ public:
 	void try_launching_batch(Game* game);
 	void traded_ware_arrived(int trade_id, DescriptionIndex ware_index, Game* game);
 
+  void write_data_to_file(Game& game) override ;
 private:
 	struct TradeOrder {
 		BillOfMaterials items;

@@ -253,7 +253,6 @@ public:
 	};
 
 public:
-  std::ofstream logs ;
 	enum class InfoStringFormat { kCensus, kStatistics, kTooltip };
 
 	explicit Building(const BuildingDescr&);
@@ -396,6 +395,7 @@ protected:
 	// this building right now. Overwritten by child classes.
 	virtual void update_statistics_string(std::string*) {
 	}
+virtual void write_data_to_file(Game&){}
 
 	bool init(EditorGameBase&) override;
 	void cleanup(EditorGameBase&) override;

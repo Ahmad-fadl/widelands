@@ -107,6 +107,8 @@ class Warehouse : public Building {
 	MO_DESCR(WarehouseDescr)
 
 public:
+  void write_data_to_file(Game& game) override ;
+
 	/**
 	 * Whether worker indices in count_workers() have to match exactly.
 	 */

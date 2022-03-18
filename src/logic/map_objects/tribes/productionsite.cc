@@ -299,6 +299,20 @@ ProductionSite::ProductionSite(const ProductionSiteDescr& ps_descr)
 	format_statistics_string();
 }
 
+void ProductionSite::write_data_to_file(Game& game){
+	get_owner()->logs << std::to_string(serial())+";"+descr_->name()+";" << game.get_gametime().get() <<";"
+	<< get_economy(WareWorker::wwWARE)->serial() << ";" << get_economy(WareWorker::wwWORKER)->serial() 
+	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" << is_reserved_by_worker() << ";" <<"nan;(";
+	for (auto worker : get_workers()){
+		get_owner()->logs << "{" << worker->serial() << "," << worker->get_state() << "," << worker->get_signal() << "}";
+	}
+	get_owner()->logs << ");" << main_worker_ << ";" << "nan" << ";" 
+	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->get_ismine() << ";" 
+	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->get_isport()
+	<< ";" << dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needs_seafaring () << ";" 
+	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needs_waterways () << ";" << true << ";" << "\n";
+}
+
 void ProductionSite::load_finish(EditorGameBase& egbase) {
 	Building::load_finish(egbase);
 	format_statistics_string();

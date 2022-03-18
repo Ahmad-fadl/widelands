@@ -399,6 +399,21 @@ Warehouse::Warehouse(const WarehouseDescr& warehouse_descr)
 	set_soldier_control(&soldier_control_);
 }
 
+
+void Warehouse::write_data_to_file(Game& game){
+	get_owner()->logs << std::to_string(serial())+";"+descr_->name()+";" << game.get_gametime().get() <<";"
+	<< get_economy(WareWorker::wwWARE)->serial() << ";" << get_economy(WareWorker::wwWORKER)->serial() 
+	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" << is_reserved_by_worker() << ";" <<"nan;nan";
+	/*for (auto worker : get_workers()){
+		get_owner()->logs << "{" << worker->serial() << "," << worker->get_state() << "," << worker->get_signal() << "}";
+	}*/
+	get_owner()->logs << ";" << "nan" << ";" << "nan" << ";" 
+	<< dynamic_cast<const Widelands::WarehouseDescr*>(descr_)->get_ismine() << ";" 
+	<< dynamic_cast<const Widelands::WarehouseDescr*>(descr_)->get_isport()
+	<< ";" << dynamic_cast<const Widelands::WarehouseDescr*>(descr_)->needs_seafaring () << ";" 
+	<< dynamic_cast<const Widelands::WarehouseDescr*>(descr_)->needs_waterways () << ";" << true << ";" << "\n";
+}
+
 Warehouse::~Warehouse() {
 	delete supply_;
 }

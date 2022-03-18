@@ -61,6 +61,23 @@ bool Market::TradeOrder::fulfilled() const {
 Market::Market(const MarketDescr& the_descr) : Building(the_descr) {
 }
 
+void Market::write_data_to_file(Game& game){
+	get_owner()->logs << std::to_string(serial())+";"+descr_->name()+";" << game.get_gametime().get() <<";"
+	<< get_economy(WareWorker::wwWARE)->serial() << ";" << get_economy(WareWorker::wwWORKER)->serial() 
+	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" << is_reserved_by_worker() << ";" <<"nan;(";
+	for (auto worker : get_workers()){
+		get_owner()->logs << "{" << worker->serial() << "," << worker->get_state() << "," << worker->get_signal() << "}";
+	}
+	get_owner()->logs << ");" << "nan" << ";" << "nan" << ";" 
+	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->get_ismine() << ";" 
+	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->get_isport()
+	<< ";" << dynamic_cast<const Widelands::MarketDescr*>(descr_)->needs_seafaring () << ";" 
+	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->needs_waterways () << ";" << false << ";" << "\n";
+}
+
+
+
+
 void Market::new_trade(const int trade_id,
                        const BillOfMaterials& items,
                        const int num_batches,

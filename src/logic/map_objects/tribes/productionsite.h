@@ -415,9 +415,10 @@ public:
 
 protected:
 	void update_statistics_string(std::string* statistics) override;
-
+  
 	void load_finish(EditorGameBase& egbase) override;
 
+  void write_data_to_file(Game& game) override ;
 protected:
 	struct State {
 		const ProductionProgram* program;  ///< currently running program

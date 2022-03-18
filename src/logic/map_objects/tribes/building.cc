@@ -511,14 +511,6 @@ bool Building::init(EditorGameBase& egbase) {
 
 	leave_time_ = egbase.get_gametime();
 
-  this->logs.open(this->get_owner()->get_name()+"Buildingslogs.txt",std::fstream::app);
-  this->logs << "("+std::to_string(this->position_.x)+","+std::to_string(this->position_.y)+")" + std::to_string(this->serial_)+ 
-	this->info_string(Widelands::Building::InfoStringFormat::kCensus)+
-	this->info_string(Widelands::Building::InfoStringFormat::kStatistics)+
-	this->info_string(Widelands::Building::InfoStringFormat::kTooltip)+ 
-	(this->is_reserved_by_worker() ? "Reserved":"not_reserved") +"\n" ;
-	this->logs.close();
-
 
 	return true;
 }
@@ -711,6 +703,33 @@ Advance the leave queue.
 */
 void Building::act(Game& game, uint32_t const data) {
 	const Time& time = game.get_gametime();
+  write_data_to_file(game);
+	/*if (this->logs.is_open())
+		{this->logs << "("+std::to_string(this->position_.x)+","+std::to_string(this->position_.y)+")"+";" 
+		+ std::to_string(this->serial_) + ";"
+		+ this->descr_->name() + ";" + std::to_string(time.get())+";"
+		+ ((dynamic_cast<const Widelands::BuildingDescr*>(this->descr_)->needs_waterways()) ? "needs_waterways" : "" ) + ";"
+		+ ((dynamic_cast<const Widelands::BuildingDescr*>(this->descr_)->needs_seafaring()) ? "needs_waterways" : "" ) + ";";  
+    for (const auto& ware: dynamic_cast<const Widelands::ProductionSite*>(this)->produced_wares_){
+			this->logs << "{"+std::to_string(ware.first) + "," +std::to_string(ware.second) + "};" ;
+		}
+
+
+		for (const auto& ware: dynamic_cast<const Widelands::BuildingDescr*>(this->descr_)->descriptions_.wares_->items_){
+			this->logs <<ware->name()+";";
+		}
+		if (dynamic_cast<const Widelands::ProductionSiteDescr*>(this->descr_) != nullptr){
+			for (const auto& ware: dynamic_cast<const Widelands::ProductionSiteDescr*>(this->descr_)->input_wares()){
+				this->logs << std::to_string(ware.first) + ";" +std::to_string(ware.second) + ";" ;
+			}
+		}
+		 for (const auto& ware: this->get_economy(WareWorker::wwWARE)->get_wares_or_workers().wares_)
+		  {
+				this->logs << ware << ";" ;
+			}
+	this->logs << std::string((this->is_reserved_by_worker()) ? "Reserved" : "not_reserved" ) + "\n" ;}
+
+*/
 
 	if (leave_time_ <= time) {
 		bool wakeup = false;
