@@ -168,7 +168,7 @@ Player::Player(EditorGameBase& the_egbase,
 	logs.open(get_name()+"Buildingslogs.txt",std::fstream::app);
   logs << "serial;name;time;ware_economy_serial;worker_economy_serial;position;reserved_by_worker;";
 	logs << "ware/workers_proiorities;workers;main_worker;passable;is_mine;is_port;needs_seafaring;";
-	logs <<"needs_water_ways;is_production_site;working_positions;is_stopped;produced_wares;recruited_workers_;";
+	logs <<"needs_water_ways;is_production_site;is_stopped;inputqueus;working_positions;produced_wares;recruited_workers_;";
 	logs <<"production_result;ware_demand_checks;worker_demand_checks;input_wares;input_workers;";
 	logs <<"output_wares_types;output_workers_types;competing_production_sites;";
 	logs <<"supported_production_sites;supported_by_production_sites;";

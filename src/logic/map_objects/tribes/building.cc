@@ -703,7 +703,7 @@ Advance the leave queue.
 */
 void Building::act(Game& game, uint32_t const data) {
 	const Time& time = game.get_gametime();
-  write_data_to_file(game);
+  
 	/*if (this->logs.is_open())
 		{this->logs << "("+std::to_string(this->position_.x)+","+std::to_string(this->position_.y)+")"+";" 
 		+ std::to_string(this->serial_) + ";"
@@ -760,6 +760,8 @@ void Building::act(Game& game, uint32_t const data) {
 	}
 
 	PlayerImmovable::act(game, data);
+
+	write_data_to_file(game);
 }
 
 /*

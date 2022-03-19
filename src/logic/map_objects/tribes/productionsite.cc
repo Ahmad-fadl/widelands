@@ -302,15 +302,28 @@ ProductionSite::ProductionSite(const ProductionSiteDescr& ps_descr)
 void ProductionSite::write_data_to_file(Game& game){
 	get_owner()->logs << std::to_string(serial())+";"+descr_->name()+";" << game.get_gametime().get() <<";"
 	<< get_economy(WareWorker::wwWARE)->serial() << ";" << get_economy(WareWorker::wwWORKER)->serial() 
-	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" << is_reserved_by_worker() << ";" <<"nan;(";
+	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" << is_reserved_by_worker() << ";" <<"na;(";
 	for (auto worker : get_workers()){
-		get_owner()->logs << "{" << worker->serial() << "," << worker->get_state() << "," << worker->get_signal() << "}";
+		get_owner()->logs << "{" << worker->serial() << "," << worker->get_state()->svar1 << "," << worker->get_signal() << "}";
 	}
-	get_owner()->logs << ");" << main_worker_ << ";" << "nan" << ";" 
+	get_owner()->logs << ");" << main_worker_ << ";" << "na" << ";" 
 	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->get_ismine() << ";" 
 	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->get_isport()
 	<< ";" << dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needs_seafaring () << ";" 
-	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needs_waterways () << ";" << true << ";" << "\n";
+	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needs_waterways () << ";" << true << ";"
+	<< (is_stopped()? "stopped" : "not_stopped") << ";(" ;
+
+for (auto inputqueu : input_queues_)	{
+	get_owner()->logs << "{" <<   game.descriptions().get_ware_descr(inputqueu->get_index())->name() << ","
+	<< inputqueu->get_max_size() << "," << inputqueu->get_max_fill() << ","
+	<< inputqueu->get_filled() << "}" ;
+}
+get_owner()->logs << ");";
+for (auto ware : produced_wares_){
+get_owner()->logs <<"(" <<   game.descriptions().get_ware_descr(ware.first)->name() << "," << ware.second << ")" ;
+}
+get_owner()->logs << "; \n";
+
 }
 
 void ProductionSite::load_finish(EditorGameBase& egbase) {
@@ -868,6 +881,7 @@ void ProductionSite::program_act(Game& game) {
 	} else {
 		(*state.program)[state.ip].execute(game, *this);
 	}
+		write_data_to_file(game);
 }
 
 /**
