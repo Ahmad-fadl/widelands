@@ -41,7 +41,7 @@
 #include "logic/map_objects/tribes/tribe_descr.h"
 #include "logic/map_objects/tribes/warelist.h"
 #include "logic/player.h"
-
+#include "scripting/lua_map.cc"
 namespace Widelands {
 
 namespace {
@@ -304,7 +304,9 @@ void ProductionSite::write_data_to_file(Game& game){
 	<< get_economy(WareWorker::wwWARE)->serial() << ";" << get_economy(WareWorker::wwWORKER)->serial() 
 	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" << is_reserved_by_worker() << ";" <<"na;(";
 	for (auto worker : get_workers()){
-		get_owner()->logs << "{" << worker->serial() << "," << worker->get_state()->svar1 << "," << worker->get_signal() << "}";
+		
+		get_owner()->logs << "{" << worker->serial() << "," << worker->get_state()->svar1 << "," 
+		<< worker->get_current_experience() << "," << worker->descr().name() << "}";
 	}
 	get_owner()->logs << ");" << main_worker_ << ";" << "na" << ";" 
 	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->get_ismine() << ";" 
@@ -314,9 +316,13 @@ void ProductionSite::write_data_to_file(Game& game){
 	<< (is_stopped()? "stopped" : "not_stopped") << ";(" ;
 
 for (auto inputqueu : input_queues_)	{
+	if (dynamic_cast<WaresQueue*>(inputqueu) != nullptr){
 	get_owner()->logs << "{" <<   game.descriptions().get_ware_descr(inputqueu->get_index())->name() << ","
 	<< inputqueu->get_max_size() << "," << inputqueu->get_max_fill() << ","
-	<< inputqueu->get_filled() << "}" ;
+	<< inputqueu->get_filled() << "," << LuaMaps::priority_to_string(get_priority(wwWARE,inputqueu->get_index())) << "}" ;}
+	else{ 
+	get_owner()->logs << "no input wares";
+	}
 }
 get_owner()->logs << ");";
 for (auto ware : produced_wares_){
