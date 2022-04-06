@@ -51,7 +51,25 @@
 #include "wui/mapviewpixelfunctions.h"
 
 namespace LuaMaps {
-
+	
+std::string priority_to_string(const Widelands::WarePriority& priority) {
+	if (priority == Widelands::WarePriority::kVeryLow) {
+		return "very_low";
+	}
+	if (priority == Widelands::WarePriority::kLow) {
+		return "low";
+	}
+	if (priority == Widelands::WarePriority::kHigh) {
+		return "high";
+	}
+	if (priority == Widelands::WarePriority::kVeryHigh) {
+		return "very_high";
+	}
+	if (priority == Widelands::WarePriority::kNormal) {
+		return "normal";
+	}
+	NEVER_HERE();
+}
 /* RST
 :mod:`wl.map`
 =============
@@ -796,24 +814,7 @@ Widelands::WarePriority string_to_priority(const std::string& p) {
 	}
 	throw wexception("Invalid ware priority '%s'", p.c_str());
 }
-std::string priority_to_string(const Widelands::WarePriority& priority) {
-	if (priority == Widelands::WarePriority::kVeryLow) {
-		return "very_low";
-	}
-	if (priority == Widelands::WarePriority::kLow) {
-		return "low";
-	}
-	if (priority == Widelands::WarePriority::kHigh) {
-		return "high";
-	}
-	if (priority == Widelands::WarePriority::kVeryHigh) {
-		return "very_high";
-	}
-	if (priority == Widelands::WarePriority::kNormal) {
-		return "normal";
-	}
-	NEVER_HERE();
-}
+
 
 }  // namespace
 
@@ -5676,14 +5677,14 @@ int LuaConstructionSite::get_priority(lua_State* L) {
 		}
 		for (const auto& pair : ps->ware_queues) {
 			if (pair.first == item) {
-				lua_pushstring(L, priority_to_string(pair.second.priority));
+				lua_pushstring(L, LuaMaps::priority_to_string(pair.second.priority));
 				return 1;
 			}
 		}
 		NEVER_HERE();
 	}
 	lua_pushstring(
-	   L, priority_to_string(get(L, get_egbase(L))->get_priority(Widelands::wwWARE, item)));
+	   L, LuaMaps::priority_to_string(get(L, get_egbase(L))->get_priority(Widelands::wwWARE, item)));
 	return 1;
 }
 int LuaConstructionSite::set_priority(lua_State* L) {
@@ -6557,7 +6558,7 @@ int LuaProductionSite::toggle_start_stop(lua_State* L) {
 // documented in parent class
 int LuaProductionSite::get_priority(lua_State* L) {
 	lua_pushstring(
-	   L, priority_to_string(
+	   L,LuaMaps::priority_to_string(
 	         get(L, get_egbase(L))
 	            ->get_priority(Widelands::wwWARE, get_egbase(L).descriptions().safe_ware_index(
 	                                                 luaL_checkstring(L, 2)))));

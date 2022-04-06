@@ -41,7 +41,7 @@
 #include "logic/map_objects/tribes/tribe_descr.h"
 #include "logic/map_objects/tribes/warelist.h"
 #include "logic/player.h"
-#include "scripting/lua_map.cc"
+#include "scripting/lua_map.h"
 namespace Widelands {
 
 namespace {
@@ -321,14 +321,41 @@ for (auto inputqueu : input_queues_)	{
 	<< inputqueu->get_max_size() << "," << inputqueu->get_max_fill() << ","
 	<< inputqueu->get_filled() << "," << LuaMaps::priority_to_string(get_priority(wwWARE,inputqueu->get_index())) << "}" ;}
 	else{ 
-	get_owner()->logs << "no input wares";
+	get_owner()->logs << ",no input wares";
 	}
 }
-get_owner()->logs << ");";
+get_owner()->logs << ");produced_Wares:(";
 for (auto ware : produced_wares_){
-get_owner()->logs <<"(" <<   game.descriptions().get_ware_descr(ware.first)->name() << "," << ware.second << ")" ;
+get_owner()->logs <<"{" <<   game.descriptions().get_ware_descr(ware.first)->name() << "," << ware.second << "}" ;
 }
-get_owner()->logs << "; \n";
+get_owner()->logs << ");orders:(";
+
+
+for (auto order : working_positions_){
+get_owner()->logs << "{";
+  if (! order.worker.is_set() && order.worker_request== nullptr){
+	  get_owner()->logs << "no workers and no requests}";
+   	continue ;
+}
+if ( order.worker.is_set() && order.worker_request == nullptr){
+  get_owner()->logs << order.worker.serial() << "," 
+	<< order.worker.get(game)->descr().name() << ",";
+	continue ;
+	}
+if (! order.worker.is_set() && order.worker_request != nullptr){
+	get_owner()->logs << (order.worker_request->get_type() == wwWARE ? 
+  game.descriptions().get_ware_descr(order.worker_request->get_index())->name() : game.descriptions().get_worker_descr(order.worker_request->get_index())->name()) 
+  << "," << order.worker_request->get_count() << ",target" << order.worker_request->target().serial() << "}" ;
+	continue ;
+	}
+	  get_owner()->logs << order.worker.serial() << "," 
+	<< order.worker.get(game)->descr().name() << ",";
+
+	get_owner()->logs << (order.worker_request->get_type() == wwWARE ? 
+  game.descriptions().get_ware_descr(order.worker_request->get_index())->name() : game.descriptions().get_worker_descr(order.worker_request->get_index())->name()) 
+  << "," << order.worker_request->get_count() << ",target" << order.worker_request->target().serial() << "}" ;
+}
+get_owner()->logs << "); \n";
 
 }
 
@@ -801,6 +828,7 @@ void ProductionSite::request_worker_callback(
 				   psite.get_position().y);
 			}
 		}
+		psite.write_data_to_file(game);
 	}
 
 	// It's always the first worker doing building work,

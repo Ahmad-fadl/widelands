@@ -48,6 +48,7 @@ class TribeDescr;
 
 namespace LuaMaps {
 
+std::string  priority_to_string(const Widelands::WarePriority& priority);
 // Used as return for parse_ware_workers_* functions
 enum class RequestedWareWorker { kAll, kSingle, kList, kUndefined };
 
