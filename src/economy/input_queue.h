@@ -65,6 +65,10 @@ public:
 		return index_;
 	}
 
+	Request*  get_request(){
+		return request_.get();
+	}
+
 	/**
 	 * Get the maximum amount of wares or workers which should be stored here.
 	 * This is a value which can be influenced by the player with the provided buttons.
