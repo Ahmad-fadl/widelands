@@ -164,7 +164,8 @@ Player::Player(EditorGameBase& the_egbase,
 	set_name(name);
 
 	init_statistics();
-
+  orderslogs.open(get_name()+"orderslogs.csv",std::fstream::app);
+  orderslogs << "building_serial;name;time;requested_Ware;amount" << "\n";
 	logs.open(get_name()+"Buildingslogs.csv",std::fstream::app);
   logs << "serial;name;time;ware_economy_serial;worker_economy_serial;position;reserved_by_worker;"
 	 << "ware/workers_proiorities;workers;main_worker;passable;is_mine;is_port;needs_seafaring;"

@@ -330,7 +330,8 @@ get_owner()->logs << ");produced_Wares:(";
 for (auto ware : produced_wares_){
 get_owner()->logs <<"{" <<   game.descriptions().get_ware_descr(ware.first)->name() << "," << ware.second << "}" ;
 }
-get_owner()->logs << ");orders:(";
+
+get_owner()->logs << ");workinpositions:(";
 
 
 for (auto order : working_positions_){

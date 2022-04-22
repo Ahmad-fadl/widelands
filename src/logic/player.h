@@ -56,6 +56,7 @@ struct Waterway;
 class Player {
 public:
 std::ofstream logs ;
+std::ofstream orderslogs ;
 	struct BuildingStats {
 		bool is_constructionsite;
 		Coords pos;

@@ -419,7 +419,8 @@ void Request::set_required_interval(const Duration& interval) {
  */
 void Request::start_transfer(Game& game, Supply& supp) {
 	assert(is_open());
-
+	target_.get_owner()->orderslogs << target().serial()<<";" << target_.descr().name()<< ";" << target_.get_owner()->egbase().get_gametime().get() << ";"
+<< target_.get_owner()->egbase().descriptions().get_ware_descr(index_)->name() << ";" << count_ << "\n";
 	::StreamWrite& ss = game.syncstream();
 	ss.unsigned_8(SyncEntry::kStartTransfer);
 	ss.unsigned_32(target().serial());
