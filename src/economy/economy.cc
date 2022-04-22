@@ -19,7 +19,6 @@
 #include "economy/economy.h"
 
 #include <memory>
-#include <fstream>
 #include "base/log.h"
 #include "base/macros.h"
 #include "base/wexception.h"
@@ -285,9 +284,6 @@ Warehouse* Economy::find_closest_warehouse(Flag& start,
  */
 void Economy::add_flag(Flag& flag) {
 	assert(flag.get_economy(type_) == nullptr);
- this->logs.open(this->owner_.get_name()+"logs.txt",std::fstream::app);
- this->logs << "("+std::to_string(flag.position_.x)+","+std::to_string(flag.position_.y)+")" + std::to_string(this->serial_)/*+ std::to_string(flag.building_->get_passable())*/ +"\n" ;
-	this->logs.close();
 	flags_.push_back(&flag);
 	flag.set_economy(this, type_);
 

@@ -21,7 +21,6 @@
 
 #include <functional>
 #include <memory>
-#include <fstream>
 #include "base/macros.h"
 #include "economy/supply.h"
 #include "economy/supply_list.h"
@@ -91,7 +90,7 @@ public:
 
 	// Initialize the global serial on game start
 	static void initialize_serial();
-  std::ofstream logs ;
+  // std::ofstream logs ;
 	/// Configurable target quantity for the supply of a ware type in the
 	/// economy.
 	///

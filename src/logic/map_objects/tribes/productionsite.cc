@@ -303,10 +303,12 @@ void ProductionSite::write_data_to_file(Game& game){
 	get_owner()->logs << std::to_string(serial())+";"+descr_->name()+";" << game.get_gametime().get() <<";"
 	<< get_economy(WareWorker::wwWARE)->serial() << ";" << get_economy(WareWorker::wwWORKER)->serial() 
 	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" << is_reserved_by_worker() << ";" <<"na;(";
+	
 	for (auto worker : get_workers()){
-		
-		get_owner()->logs << "{" << worker->serial() << "," << worker->get_state()->svar1 << "," 
+		if (worker != nullptr){
+		get_owner()->logs << "{" << worker->serial() << "," /*<< worker->get_state()->svar1 << "," */
 		<< worker->get_current_experience() << "," << worker->descr().name() << "}";
+	}
 	}
 	get_owner()->logs << ");" << main_worker_ << ";" << "na" << ";" 
 	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->get_ismine() << ";" 
