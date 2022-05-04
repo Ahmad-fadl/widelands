@@ -300,9 +300,13 @@ ProductionSite::ProductionSite(const ProductionSiteDescr& ps_descr)
 }
 
 void ProductionSite::write_data_to_file(Game& game){
-	get_owner()->logs << std::to_string(serial())+";"+descr_->name()+";" << game.get_gametime().get() <<";"
-	<< get_economy(WareWorker::wwWARE)->serial() << ";" << get_economy(WareWorker::wwWORKER)->serial() 
-	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" << is_reserved_by_worker() << ";" <<"na;(";
+	get_owner()->logs << std::to_string(serial())+";"
+	+descr_->name()+";" 
+	<< game.get_gametime().get() <<";"
+	<< get_economy(WareWorker::wwWARE)->serial() << 
+	";" << get_economy(WareWorker::wwWORKER)->serial() 
+	<< ";" << "(" << position_.x << "," << position_.y << ")" 
+	<<";" << is_reserved_by_worker() << ";(";
 	
 	for (auto worker : get_workers()){
 		if (worker != nullptr){
@@ -310,12 +314,14 @@ void ProductionSite::write_data_to_file(Game& game){
 		<< worker->get_current_experience() << "," << worker->descr().name() << "}";
 	}
 	}
-	get_owner()->logs << ");" << main_worker_ << ";" << "na" << ";" 
+	get_owner()->logs << ");"
 	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->get_ismine() << ";" 
-	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->get_isport()
-	<< ";" << dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needs_seafaring () << ";" 
-	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needs_waterways () << ";" << true << ";"
-	<< (is_stopped()? "stopped" : "not_stopped") << ";(" ;
+	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->get_isport()<< ";" 
+	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needs_seafaring () << ";" 
+	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needs_waterways () << ";" 
+	<< get_passable() << ";"
+	<< true <<";" << false << ";" << false <<";" 
+	<< "na;na;(" /* warehousattributes */ ;
 
 for (auto inputqueu : input_queues_)	{
 	if (dynamic_cast<WaresQueue*>(inputqueu) != nullptr){
@@ -358,7 +364,7 @@ if (! order.worker.is_set() && order.worker_request != nullptr){
   game.descriptions().get_ware_descr(order.worker_request->get_index())->name() : game.descriptions().get_worker_descr(order.worker_request->get_index())->name()) 
   << "," << order.worker_request->get_count() << ",target" << order.worker_request->target().serial() << "}" ;
 }
-get_owner()->logs << "); \n";
+get_owner()->logs << ");"<<  "\n";
 
 }
 

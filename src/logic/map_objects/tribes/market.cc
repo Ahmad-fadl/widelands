@@ -62,17 +62,24 @@ Market::Market(const MarketDescr& the_descr) : Building(the_descr) {
 }
 
 void Market::write_data_to_file(Game& game){
-	get_owner()->logs << std::to_string(serial())+";"+descr_->name()+";" << game.get_gametime().get() <<";"
-	<< get_economy(WareWorker::wwWARE)->serial() << ";" << get_economy(WareWorker::wwWORKER)->serial() 
-	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" << is_reserved_by_worker() << ";" <<"na;(";
+	get_owner()->logs << std::to_string(serial())+";"
+	+descr_->name()+";" << game.get_gametime().get() <<";"
+	<< get_economy(WareWorker::wwWARE)->serial() 
+	<< ";" << get_economy(WareWorker::wwWORKER)->serial() 
+	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" 
+	<< is_reserved_by_worker() << ";(";
 	for (auto worker : get_workers()){
 		get_owner()->logs << "{" << worker->serial() << "," << worker->get_state() << "," << worker->get_signal() << "}";
 	}
-	get_owner()->logs << ");" << "na" << ";" << "na" << ";" 
+	get_owner()->logs << ");"
 	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->get_ismine() << ";" 
-	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->get_isport()
-	<< ";" << dynamic_cast<const Widelands::MarketDescr*>(descr_)->needs_seafaring () << ";" 
-	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->needs_waterways () << ";" << false << ";" << "\n";
+	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->get_isport()<< ";" 
+	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->needs_seafaring () << ";" 
+	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->needs_waterways () << ";"
+	<< get_passable() << ";" << false <<";" << false << ";" << true <<";" 
+	<< "na;na" /* warehousattributes */
+	<< "na;na;na;" /* productionsites attributes */
+	<< "\n";
 }
 
 

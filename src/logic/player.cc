@@ -164,21 +164,14 @@ Player::Player(EditorGameBase& the_egbase,
 	set_name(name);
 
 	init_statistics();
-  orderslogs.open(get_name()+"orderslogs.csv",std::fstream::app);
-  orderslogs << "building_serial;name;time;requested_Ware;amount" << "\n";
+	orderslogs.open(get_name()+"orderslogs.csv",std::fstream::app);
+  orderslogs << "building_serial;name;time;requested_Ware;amount" << "\n";  //5
 	logs.open(get_name()+"Buildingslogs.csv",std::fstream::app);
-  logs << "serial;name;time;ware_economy_serial;worker_economy_serial;position;reserved_by_worker;"
-	 << "ware/workers_proiorities;workers;main_worker;passable;is_mine;is_port;needs_seafaring;"
-	 <<"needs_water_ways;is_production_site;is_stopped;inputqueus;working_positions;produced_wares;recruited_workers_;"
-	 <<"production_result;ware_demand_checks;worker_demand_checks;input_wares;input_workers;"
-	 <<"output_wares_types;output_workers_types;competing_production_sites;"
-	 <<"supported_production_sites;supported_by_production_sites;"
-	 <<"is_warehouse;ware_list;ware_policy;stock_policy;port_dock_name;port_dock_serial;"
-	 <<"port_dock_position;port_dock_workers;port_dock_passable;"
-	 <<"port_dock_expeddition_started;port_dock_is_expedition_ready;port_dock_reserved_by_worker;"
-	 <<"fleet_name;fleet_serial;fleet_ships;fleet_active;fleet_has_ports;fleet_schedule;"
-	 <<"fleet_ports;fleet_reseved_by_worker;is_market;trade_orders;wares_queue;"
-	 <<"is_useful_on_map"
+  logs << "serial;name;time;ware_economy_serial;worker_economy_serial;position;reserved_by_worker;" //7
+	 << "workers;is_mine;is_port;needs_seafaring;"  /* "is market" is the last commun attribute -4 */
+	 <<"needs_water_ways;passable;is_production_site;is_warehouse;is_market;" //5
+	 << "ware_priorities;wares;"   /* warehous attributes 2 */ 
+	 << "input_queues;produced_Wares;workinpositions;"             /* Productionsite attributes 3*/
 	 << "\n"; 
 	// Allow workers that the player's tribe has.
 	for (DescriptionIndex worker_index : tribe().workers()) {
