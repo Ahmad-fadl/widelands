@@ -334,7 +334,7 @@ for (auto inputqueu : input_queues_)	{
 }
 get_owner()->logs << ");produced_Wares:(";
 for (auto ware : produced_wares_){
-get_owner()->logs <<"{" <<   game.descriptions().get_ware_descr(ware.first)->name() << "," << ware.second << "}" ;
+get_owner()->logs <<"{" <<   game.descriptions().get_ware_descr(ware.first)->name() << ":" << ware.second << "}" ;
 }
 
 get_owner()->logs << ");workinpositions:(";
@@ -347,22 +347,25 @@ get_owner()->logs << "{";
    	continue ;
 }
 if ( order.worker.is_set() && order.worker_request == nullptr){
-  get_owner()->logs << order.worker.serial() << "," 
-	<< order.worker.get(game)->descr().name() << ",";
+  get_owner()->logs  << order.worker.get(game)->descr().name()
+	<< ":"  << order.worker.serial() 
+	 << ",";
 	continue ;
 	}
 if (! order.worker.is_set() && order.worker_request != nullptr){
 	get_owner()->logs << (order.worker_request->get_type() == wwWARE ? 
   game.descriptions().get_ware_descr(order.worker_request->get_index())->name() : game.descriptions().get_worker_descr(order.worker_request->get_index())->name()) 
-  << "," << order.worker_request->get_count() << ",target" << order.worker_request->target().serial() << "}" ;
+  << ":" << order.worker_request->get_count() << ",target" << order.worker_request->target().serial() << "}" ;
 	continue ;
 	}
-	  get_owner()->logs << order.worker.serial() << "," 
-	<< order.worker.get(game)->descr().name() << ",";
+	  get_owner()->logs << order.worker.get(game)->descr().name() 
+		<< ":" 
+		 << order.worker.serial() 
+	<< ",";
 
 	get_owner()->logs << (order.worker_request->get_type() == wwWARE ? 
   game.descriptions().get_ware_descr(order.worker_request->get_index())->name() : game.descriptions().get_worker_descr(order.worker_request->get_index())->name()) 
-  << "," << order.worker_request->get_count() << ",target" << order.worker_request->target().serial() << "}" ;
+  << ":" << order.worker_request->get_count() << ",target" << order.worker_request->target().serial() << "}" ;
 }
 get_owner()->logs << ")"<<  "\n";
 
