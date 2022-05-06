@@ -448,7 +448,7 @@ get_owner()->logs << ")"<< ";Numberof wares:" << get_wares().get_nrwareids()  <<
 
 
 	get_owner()->logs << ");" 
-	<< "na;na;na;" /* productionsites attributes */
+	<< "na;na;na" /* productionsites attributes */
 	<< "\n";
 }
 

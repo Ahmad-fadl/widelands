@@ -78,7 +78,7 @@ void Market::write_data_to_file(Game& game){
 	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->needs_waterways () << ";"
 	<< get_passable() << ";" << false <<";" << false << ";" << true <<";" 
 	<< "na;na" /* warehousattributes */
-	<< "na;na;na;" /* productionsites attributes */
+	<< "na;na;na" /* productionsites attributes */
 	<< "\n";
 }
 

@@ -364,7 +364,7 @@ if (! order.worker.is_set() && order.worker_request != nullptr){
   game.descriptions().get_ware_descr(order.worker_request->get_index())->name() : game.descriptions().get_worker_descr(order.worker_request->get_index())->name()) 
   << "," << order.worker_request->get_count() << ",target" << order.worker_request->target().serial() << "}" ;
 }
-get_owner()->logs << ");"<<  "\n";
+get_owner()->logs << ")"<<  "\n";
 
 }
 

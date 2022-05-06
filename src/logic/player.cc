@@ -165,13 +165,13 @@ Player::Player(EditorGameBase& the_egbase,
 
 	init_statistics();
 	orderslogs.open(get_name()+"orderslogs.csv",std::fstream::app);
-  orderslogs << "building_serial;name;time;requested_Ware;amount" << "\n";  //5
+  orderslogs << "serial;name;time;requested_Ware;amount" << "\n";  //5
 	logs.open(get_name()+"Buildingslogs.csv",std::fstream::app);
   logs << "serial;name;time;ware_economy_serial;worker_economy_serial;position;reserved_by_worker;" //7
 	 << "workers;is_mine;is_port;needs_seafaring;"  /* "is market" is the last commun attribute -4 */
 	 <<"needs_water_ways;passable;is_production_site;is_warehouse;is_market;" //5
 	 << "ware_priorities;wares;"   /* warehous attributes 2 */ 
-	 << "input_queues;produced_Wares;workinpositions;"             /* Productionsite attributes 3*/
+	 << "input_queues;produced_Wares;workinpositions"             /* Productionsite attributes 3*/
 	 << "\n"; 
 	// Allow workers that the player's tribe has.
 	for (DescriptionIndex worker_index : tribe().workers()) {
