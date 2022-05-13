@@ -67,11 +67,11 @@ void Market::write_data_to_file(Game& game){
 	<< get_economy(WareWorker::wwWARE)->serial() 
 	<< ";" << get_economy(WareWorker::wwWORKER)->serial() 
 	<< ";" << "(" << position_.x << "," << position_.y << ")" <<";" 
-	<< is_reserved_by_worker() << ";(";
+	<< is_reserved_by_worker() << ";{";
 	for (auto worker : get_workers()){
-		get_owner()->logs << "{" << worker->serial() << "," << worker->get_state() << "," << worker->get_signal() << "}";
+		get_owner()->logs  << worker->serial() << "," << worker->get_state() << "," << worker->get_signal() ;
 	}
-	get_owner()->logs << ");"
+	get_owner()->logs << "};"
 	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->get_ismine() << ";" 
 	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->get_isport()<< ";" 
 	<< dynamic_cast<const Widelands::MarketDescr*>(descr_)->needs_seafaring () << ";" 

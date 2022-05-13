@@ -332,12 +332,12 @@ for (auto inputqueu : input_queues_)	{
 	get_owner()->logs << ",no input wares";
 	}
 }
-get_owner()->logs << ");produced_Wares:(";
+get_owner()->logs << ");produced_Wares:{";
 for (auto ware : produced_wares_){
-get_owner()->logs <<"{" <<   game.descriptions().get_ware_descr(ware.first)->name() << ":" << ware.second << "}" ;
+get_owner()->logs  <<   game.descriptions().get_ware_descr(ware.first)->name() << ":" << ware.second ;
 }
 
-get_owner()->logs << ");workinpositions:(";
+get_owner()->logs << "};workinpositions:(";
 
 
 for (auto order : working_positions_){

@@ -410,18 +410,17 @@ void Warehouse::write_data_to_file(Game& game){
 	<<";" << is_reserved_by_worker() ;
 
 
-		get_owner()->logs <<   ";number of workers:" << get_workers().get_nrwareids() << ",workers:(" ;
+		get_owner()->logs <<   ";number of workers:" << get_workers().get_nrwareids() << ",workers:{" ;
   for (Widelands::DescriptionIndex i=0; i < get_workers().get_nrwareids();i++) {
-		    get_owner()->logs << "{" << game.descriptions().get_worker_descr(i)->name() 
+		    get_owner()->logs  << game.descriptions().get_worker_descr(i)->name() 
 		    <<":" 
-				<< get_workers().stock(i)
-		    << "}";
+				<< get_workers().stock(i) ;
 				if (i +1 < get_workers().get_nrwareids()){
 					get_owner()->logs << ",";
 				}
 	}
 
-	get_owner()->logs <<   ");" 
+	get_owner()->logs <<   "};" 
 	<< dynamic_cast<const Widelands::WarehouseDescr*>(descr_)->get_ismine() << ";" 
 	<< dynamic_cast<const Widelands::WarehouseDescr*>(descr_)->get_isport() << ";" 
 	<< dynamic_cast<const Widelands::WarehouseDescr*>(descr_)->needs_seafaring () << ";" 
@@ -434,24 +433,21 @@ get_owner()->logs <<   "ware_priorities:("  ;
 	  << ",amount:" << get_wares().stock(pair.first) << ","
 	  << LuaMaps::priority_to_string(pair.second) << "}," ;
 }
-get_owner()->logs << ")"<< ";Numberof wares:" << get_wares().get_nrwareids()  <<  "wares:(";
+get_owner()->logs << ")"<< ";Numberof wares:" << get_wares().get_nrwareids()  <<  "wares:{";
 	for (Widelands::DescriptionIndex i=0; i < get_wares().get_nrwareids();i++){
 
-				get_owner()->logs << "{" << game.descriptions().get_ware_descr(i)->name() 
+				get_owner()->logs <<'"' << game.descriptions().get_ware_descr(i)->name() <<'"'
 
 				<< ":" 
 
-				<< get_wares().stock(i) 
-				
-				
-		    << "}";
+				<<'"'<< get_wares().stock(i) <<'"';
 				if (i +1 < get_wares().get_nrwareids()){
 					get_owner()->logs << ",";
 				}
 			} 
 
 
-	get_owner()->logs << ");" 
+	get_owner()->logs << "};" 
 	<< "na;na;na" /* productionsites attributes */
 	<< "\n";
 }
