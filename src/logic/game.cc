@@ -148,6 +148,7 @@ Game::Game()
      state_(gs_notrunning),
      cmdqueue_(*this),
      scenario_difficulty_(kScenarioDifficultyNotSet),
+     diplomacy_allowed_(true),
      /** TRANSLATORS: Win condition for this game has not been set. */
      win_condition_displayname_(_("Not set")),
 #if 0  // TODO(Nordfriese): Re-add training wheels code after v1.0
@@ -645,7 +646,7 @@ bool Game::run(StartGameType const start_game_type,
 			}
 		}
 
-		if (ipl) {
+		if (ipl != nullptr) {
 			// Scroll map to starting position for new games.
 			// Loaded games are handled in GameInteractivePlayerPacket for single player, and in
 			// InteractiveGameBase::start() for multiplayer.
@@ -661,9 +662,9 @@ bool Game::run(StartGameType const start_game_type,
 		iterate_player_numbers(p, nr_players) {
 			const Player* const plr = get_player(p);
 			const std::string no_name;
-			const std::string& player_tribe = plr ? plr->tribe().name() : no_name;
-			const std::string& player_name = plr ? plr->get_name() : no_name;
-			const std::string& player_ai = plr ? plr->get_ai() : no_name;
+			const std::string& player_tribe = plr != nullptr ? plr->tribe().name() : no_name;
+			const std::string& player_name = plr != nullptr ? plr->get_name() : no_name;
+			const std::string& player_ai = plr != nullptr ? plr->get_ai() : no_name;
 			mutable_map()->set_scenario_player_tribe(p, player_tribe);
 			mutable_map()->set_scenario_player_name(p, player_name);
 			mutable_map()->set_scenario_player_ai(p, player_ai);
@@ -857,6 +858,9 @@ void Game::cleanup_for_load() {
 	EditorGameBase::cleanup_for_load();
 
 	cmdqueue().flush();
+
+	pending_diplomacy_actions_.clear();
+	diplomacy_allowed_ = true;
 
 	// Statistics
 	general_stats_.clear();
@@ -1138,6 +1142,10 @@ void Game::send_player_expedition_config(PortDock& pd,
 	   new CmdExpeditionConfig(get_gametime(), pd.get_owner()->player_number(), pd, ww, di, add));
 }
 
+void Game::send_player_diplomacy(PlayerNumber p1, DiplomacyAction a, PlayerNumber p2) {
+	send_player_command(new CmdDiplomacy(get_gametime(), p1, a, p2));
+}
+
 void Game::send_player_propose_trade(const Trade& trade) {
 	auto* object = objects().get_object(trade.initiator);
 	assert(object != nullptr);
@@ -1304,7 +1312,7 @@ void Game::sample_statistics() {
 		}
 
 		// Now, walk the bobs
-		for (Bob const* b = fc.field->get_first_bob(); b; b = b->get_next_bob()) {
+		for (Bob const* b = fc.field->get_first_bob(); b != nullptr; b = b->get_next_bob()) {
 			if (upcast(Soldier const, s, b)) {
 				miltary_strength[s->owner().player_number() - 1] +=
 				   s->get_level(TrainingAttribute::kTotal) + 1;  //  So that level 0 also counts.
@@ -1347,7 +1355,7 @@ void Game::sample_statistics() {
 
 	// Now, divide the statistics
 	for (uint32_t i = 0; i < map().get_nrplayers(); ++i) {
-		if (productivity[i]) {
+		if (productivity[i] != 0u) {
 			productivity[i] /= nr_production_sites[i];
 		}
 	}
