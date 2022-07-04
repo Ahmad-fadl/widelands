@@ -413,6 +413,9 @@ public:
 	// and the force-started program has not terminated yet.
 	bool has_forced_state() const;
 
+
+	void write_wares_relationships_to_file(EditorGameBase& egbase) ;
+
 protected:
 	void update_statistics_string(std::string* statistics) override;
   

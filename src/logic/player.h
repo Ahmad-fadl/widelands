@@ -57,6 +57,7 @@ class Player {
 public:
 std::ofstream logs ;
 std::ofstream orderslogs ;
+std::ofstream wares_relationships ;
 	struct BuildingStats {
 		bool is_constructionsite;
 		Coords pos;

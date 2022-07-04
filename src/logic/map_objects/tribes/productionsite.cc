@@ -299,6 +299,35 @@ ProductionSite::ProductionSite(const ProductionSiteDescr& ps_descr)
 	format_statistics_string();
 }
 
+void ProductionSite::write_wares_relationships_to_file(EditorGameBase& egbase) {	
+	for (const auto& x : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->programs()){
+		get_owner()->wares_relationships << x.first << ";" <<x.second.get()->descname() << ";produced_Wares(";
+		for (auto a : x.second.get()->produced_wares() ){
+			{ get_owner()->wares_relationships << "{" << egbase.descriptions().get_ware_descr(a.first)->name() << ":" << int(a.second) << "}";}
+		}
+		get_owner()->wares_relationships <<");recruited_workers(" ;
+		for (auto a : x.second.get()->recruited_workers() ){
+			{ get_owner()->wares_relationships << "{" << egbase.descriptions().get_worker_descr(a.first)->name() << ":" << int(a.second) << "}";}
+		}
+		get_owner()->wares_relationships <<");(" ;
+		for (auto set_element : x.second.get()->consumed_wares_workers()){
+			for (auto ware_amount_pair:  set_element.first){
+				if (ware_amount_pair.second == Widelands::WareWorker::wwWARE ){
+       get_owner()->wares_relationships << "{" << egbase.descriptions().get_ware_descr(ware_amount_pair.first)->name() << ":" << int(set_element.second) << "}"<<",";
+			 }
+			 	if (ware_amount_pair.second == Widelands::WareWorker::wwWORKER ){
+       get_owner()->wares_relationships << "{" << egbase.descriptions().get_worker_descr(ware_amount_pair.first)->name() << ":" << int(set_element.second) << "}"<<",";
+			 }
+			}
+		}
+		get_owner()->wares_relationships <<");" << egbase.get_gametime().get() <<"\n";
+	}
+	
+}
+
+
+
+
 void ProductionSite::write_data_to_file(Game& game){
 	get_owner()->logs << std::to_string(serial())+";"
 	+descr_->name()+";" 
@@ -534,7 +563,7 @@ void ProductionSite::format_statistics_string() {
  */
 bool ProductionSite::init(EditorGameBase& egbase) {
 	Building::init(egbase);
-
+  write_wares_relationships_to_file(egbase);
 	const BillOfMaterials& input_wares = descr().input_wares();
 	const BillOfMaterials& input_workers = descr().input_workers();
 	input_queues_.resize(input_wares.size() + input_workers.size());
