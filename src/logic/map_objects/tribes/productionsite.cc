@@ -301,26 +301,70 @@ ProductionSite::ProductionSite(const ProductionSiteDescr& ps_descr)
 
 void ProductionSite::write_wares_relationships_to_file(EditorGameBase& egbase) {	
 	for (const auto& x : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->programs()){
-		get_owner()->wares_relationships << x.first << ";" <<x.second.get()->descname() << ";produced_Wares(";
+		get_owner()->wares_relationships  << serial() <<";" << descr_->name() << ";" << x.first << ";" <<x.second.get()->descname() << ";{";
+		int counter =0;
 		for (auto a : x.second.get()->produced_wares() ){
-			{ get_owner()->wares_relationships << "{" << egbase.descriptions().get_ware_descr(a.first)->name() << ":" << int(a.second) << "}";}
-		}
-		get_owner()->wares_relationships <<");recruited_workers(" ;
-		for (auto a : x.second.get()->recruited_workers() ){
-			{ get_owner()->wares_relationships << "{" << egbase.descriptions().get_worker_descr(a.first)->name() << ":" << int(a.second) << "}";}
-		}
-		get_owner()->wares_relationships <<");(" ;
-		for (auto set_element : x.second.get()->consumed_wares_workers()){
-			for (auto ware_amount_pair:  set_element.first){
-				if (ware_amount_pair.second == Widelands::WareWorker::wwWARE ){
-       get_owner()->wares_relationships << "{" << egbase.descriptions().get_ware_descr(ware_amount_pair.first)->name() << ":" << int(set_element.second) << "}"<<",";
-			 }
-			 	if (ware_amount_pair.second == Widelands::WareWorker::wwWORKER ){
-       get_owner()->wares_relationships << "{" << egbase.descriptions().get_worker_descr(ware_amount_pair.first)->name() << ":" << int(set_element.second) << "}"<<",";
-			 }
+			{ get_owner()->wares_relationships <<'"' << egbase.descriptions().get_ware_descr(a.first)->name() << '"' << ':'  << '"' << int(a.second) << '"';
+			counter++;
+			if (counter != int(x.second.get()->produced_wares().size()))
+			get_owner()->wares_relationships << ";";
 			}
 		}
-		get_owner()->wares_relationships <<");" << egbase.get_gametime().get() <<"\n";
+		get_owner()->wares_relationships <<"};{" ;
+		for (auto a : x.second.get()->recruited_workers() ){
+			{ get_owner()->wares_relationships << '"' << egbase.descriptions().get_worker_descr(a.first)->name() << '"' << ':'  << '"' << int(a.second) << '"';}
+		}
+		get_owner()->wares_relationships <<"};{" ;
+
+
+
+
+		counter=0;
+		for (auto set_element : x.second.get()->consumed_wares_workers()){
+			counter++;
+
+    if (set_element.first.size()==2){
+			int newcounter=0;
+			get_owner()->wares_relationships << '"';
+			for (auto ware_amount_pair:  set_element.first){
+				newcounter++;
+				get_owner()->wares_relationships   << egbase.descriptions().get_ware_descr(ware_amount_pair.first)->name() ;
+				if (newcounter<2) {
+					get_owner()->wares_relationships<<  "/"  ;
+				}
+			}
+			get_owner()->wares_relationships << '"' << ':'  << '"' << int(set_element.second) << '"' ;
+			 
+			 if (counter<int(x.second.get()->consumed_wares_workers().size())){
+			 get_owner()->wares_relationships << ",";
+			 }
+		}
+
+else{
+
+			for (auto ware_amount_pair:  set_element.first){
+				if (ware_amount_pair.second == Widelands::WareWorker::wwWARE ){
+
+       get_owner()->wares_relationships << '"'  << egbase.descriptions().get_ware_descr(ware_amount_pair.first)->name() << '"' << ':'  << '"' << int(set_element.second) << '"' ;
+			 
+			 if (counter<int(x.second.get()->consumed_wares_workers().size())){
+			 get_owner()->wares_relationships << ",";
+			 }
+			 
+
+			 }
+			 	if (ware_amount_pair.second == Widelands::WareWorker::wwWORKER ){
+       get_owner()->wares_relationships << '"'  << egbase.descriptions().get_worker_descr(ware_amount_pair.first)->name() << '"' << ':'  << '"' << int(set_element.second) << '"' ;
+			  if (counter<int(x.second.get()->consumed_wares_workers().size())){
+			 get_owner()->wares_relationships << ",";
+			 }
+			 }
+			 
+			}
+
+		}
+		}
+		get_owner()->wares_relationships <<"};" << egbase.get_gametime().get() <<"\n";
 	}
 	
 }
@@ -350,18 +394,22 @@ void ProductionSite::write_data_to_file(Game& game){
 	<< dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needs_waterways () << ";" 
 	<< get_passable() << ";"
 	<< true <<";" << false << ";" << false <<";" 
-	<< "na;na;(" /* warehousattributes */ ;
-
+	<< "na;na;{" /* warehousattributes */ ;
+int counter=0;
 for (auto inputqueu : input_queues_)	{
 	if (dynamic_cast<WaresQueue*>(inputqueu) != nullptr){
-	get_owner()->logs << "{" <<   game.descriptions().get_ware_descr(inputqueu->get_index())->name() << ","
+	get_owner()->logs << '"' <<   game.descriptions().get_ware_descr(inputqueu->get_index())->name() 
+	<< '"' << ":" << '"' << "["
 	<< inputqueu->get_max_size() << "," << inputqueu->get_max_fill() << ","
-	<< inputqueu->get_filled() << "," << LuaMaps::priority_to_string(get_priority(wwWARE,inputqueu->get_index())) << "}" ;}
-	else{ 
-	get_owner()->logs << ",no input wares";
+	<< inputqueu->get_filled() << ']' << '"' ;
+	if  ((counter+1) != int(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->input_wares().size())){ 
+		get_owner()->logs << "," ;
+		}
+	counter++;
 	}
+
 }
-get_owner()->logs << ");produced_Wares:{";
+get_owner()->logs << "};produced_Wares:{";
 for (auto ware : produced_wares_){
 get_owner()->logs  <<   game.descriptions().get_ware_descr(ware.first)->name() << ":" << ware.second ;
 }
