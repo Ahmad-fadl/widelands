@@ -307,12 +307,19 @@ void ProductionSite::write_wares_relationships_to_file(EditorGameBase& egbase) {
 			{ get_owner()->wares_relationships <<'"' << egbase.descriptions().get_ware_descr(a.first)->name() << '"' << ':'  << '"' << int(a.second) << '"';
 			counter++;
 			if (counter != int(x.second.get()->produced_wares().size()))
-			get_owner()->wares_relationships << ";";
+			get_owner()->wares_relationships << ",";
 			}
 		}
 		get_owner()->wares_relationships <<"};{" ;
+		counter=0;
 		for (auto a : x.second.get()->recruited_workers() ){
-			{ get_owner()->wares_relationships << '"' << egbase.descriptions().get_worker_descr(a.first)->name() << '"' << ':'  << '"' << int(a.second) << '"';}
+			  { 
+					counter++;
+				get_owner()->wares_relationships << '"' << egbase.descriptions().get_worker_descr(a.first)->name() 
+			  << '"' << ':'  << '"' << int(a.second) << '"';
+			if (counter != int(x.second.get()->recruited_workers().size()))
+			get_owner()->wares_relationships << ",";
+			}
 		}
 		get_owner()->wares_relationships <<"};{" ;
 
