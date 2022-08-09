@@ -301,6 +301,35 @@ ProductionSite::ProductionSite(const ProductionSiteDescr& ps_descr)
 
 void ProductionSite::write_wares_relationships_to_file(EditorGameBase& egbase) {	
 	for (const auto& x : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->programs()){
+
+// schreib das ganze von anfang an so viel wie die länge von den alternativen gütern
+
+// hahaha
+int index_of_alternatives=0;
+bool doubeled= false;
+for (auto set_element : x.second.get()->consumed_wares_workers())
+{
+
+	if (set_element.first.size()>1){
+		doubeled=true;
+    break;
+	}
+	index_of_alternatives++;
+}
+  
+
+if (doubeled)
+{
+	int alternative_counter=0;
+for (auto ware_amount_pair:  x.second.get()->consumed_wares_workers()[index_of_alternatives].first)
+{
+
+alternative_counter++;
+
+  
+
+
+
 		get_owner()->wares_relationships  << serial() <<";" << descr_->name() << ";" << x.first << ";" <<x.second.get()->descname() << ";{";
 		int counter =0;
 		for (auto a : x.second.get()->produced_wares() ){
@@ -326,28 +355,107 @@ void ProductionSite::write_wares_relationships_to_file(EditorGameBase& egbase) {
 
 
 
-		counter=0;
+	int consumed_w_w_counter=0;
 		for (auto set_element : x.second.get()->consumed_wares_workers()){
-			counter++;
 
-    if (set_element.first.size()==2){
-			int newcounter=0;
-			get_owner()->wares_relationships << '"';
-			for (auto ware_amount_pair:  set_element.first){
-				newcounter++;
-				get_owner()->wares_relationships   << egbase.descriptions().get_ware_descr(ware_amount_pair.first)->name() ;
-				if (newcounter<2) {
-					get_owner()->wares_relationships<<  "/"  ;
-				}
-			}
-			get_owner()->wares_relationships << '"' << ':'  << '"' << int(set_element.second) << '"' ;
+			//	get_owner()->wares_relationships   << egbase.descriptions().get_ware_descr((set_element_.first.begin()++)->first)->name() ;
+		if ((set_element.first.size()>1)){
+
+				if (ware_amount_pair.second == Widelands::WareWorker::wwWARE ){
+
+       get_owner()->wares_relationships << '"'  << egbase.descriptions().get_ware_descr(ware_amount_pair.first)->name() << '"' << ':'  << '"' << int(set_element.second) << '"' ;
 			 
 			 if (counter<int(x.second.get()->consumed_wares_workers().size())){
 			 get_owner()->wares_relationships << ",";
 			 }
+			 
+
+			 }
+			 	if (ware_amount_pair.second == Widelands::WareWorker::wwWORKER ){
+       get_owner()->wares_relationships << '"'  << egbase.descriptions().get_worker_descr(ware_amount_pair.first)->name() << '"' << ':'  << '"' << int(set_element.second) << '"' ;
+			  if (counter<int(x.second.get()->consumed_wares_workers().size())){
+			 get_owner()->wares_relationships << ",";
+			 }
+			 }
+			 
+
+
 		}
 
+
+
 else{
+
+			
+				if (ware_amount_pair.second == Widelands::WareWorker::wwWARE ){
+
+       get_owner()->wares_relationships << '"'  << egbase.descriptions().get_ware_descr((set_element.first.begin())->first)->name() << '"' << ':'  << '"' << int(set_element.second) << '"' ;
+			 
+			 if (counter<int(x.second.get()->consumed_wares_workers().size())){
+			 get_owner()->wares_relationships << ",";
+			 }
+			 
+
+			 }
+			 	if (ware_amount_pair.second == Widelands::WareWorker::wwWORKER ){
+       get_owner()->wares_relationships << '"'  << egbase.descriptions().get_worker_descr((set_element.first.begin())->first)->name() << '"' << ':'  << '"' << int(set_element.second) << '"' ;
+			  if (counter<int(x.second.get()->consumed_wares_workers().size())){
+			 get_owner()->wares_relationships << ",";
+			 }
+			 }
+			 
+			
+
+		}
+		consumed_w_w_counter++;
+		}
+		get_owner()->wares_relationships <<"};" << egbase.get_gametime().get() <<"\n";
+	}
+
+
+
+
+	}
+
+
+// normal no alternatives
+
+
+	else{
+
+		get_owner()->wares_relationships  << serial() <<";" << descr_->name() << ";" << x.first << ";" <<x.second.get()->descname() << ";{";
+		int counter =0;
+		for (auto a : x.second.get()->produced_wares() ){
+			{ get_owner()->wares_relationships <<'"' << egbase.descriptions().get_ware_descr(a.first)->name() << '"' << ':'  << '"' << int(a.second) << '"';
+			counter++;
+			if (counter != int(x.second.get()->produced_wares().size()))
+			get_owner()->wares_relationships << ",";
+			}
+		}
+		get_owner()->wares_relationships <<"};{" ;
+		counter=0;
+		for (auto a : x.second.get()->recruited_workers() ){
+			  { 
+					counter++;
+				get_owner()->wares_relationships << '"' << egbase.descriptions().get_worker_descr(a.first)->name() 
+			  << '"' << ':'  << '"' << int(a.second) << '"';
+			if (counter != int(x.second.get()->recruited_workers().size()))
+			get_owner()->wares_relationships << ",";
+			}
+		}
+		get_owner()->wares_relationships <<"};{" ;
+
+
+
+
+	
+		for (auto set_element : x.second.get()->consumed_wares_workers()){
+
+			//	get_owner()->wares_relationships   << egbase.descriptions().get_ware_descr((set_element_.first.begin()++)->first)->name() ;
+
+
+
+
 
 			for (auto ware_amount_pair:  set_element.first){
 				if (ware_amount_pair.second == Widelands::WareWorker::wwWARE ){
@@ -369,12 +477,15 @@ else{
 			 
 			}
 
-		}
+		
 		}
 		get_owner()->wares_relationships <<"};" << egbase.get_gametime().get() <<"\n";
 	}
+	}
 	
-}
+	}
+	
+
 
 
 
