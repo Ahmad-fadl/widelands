@@ -58,6 +58,7 @@ public:
 std::ofstream logs ;
 std::ofstream orderslogs ;
 std::ofstream wares_relationships ;
+std::ofstream transport_lanes ;
 	struct BuildingStats {
 		bool is_constructionsite;
 		Coords pos;

@@ -109,6 +109,10 @@ public:
 
 	void start_transfer(Game&, Supply&);
 
+  void write_transport_lane(Game& game);
+
+	void write_order_logs();
+
 	void read(FileRead&, Game&, MapObjectLoader&);
 	void write(FileWrite&, Game&, MapObjectSaver&) const;
 	Worker* get_transfer_worker();

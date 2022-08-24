@@ -412,6 +412,54 @@ void Request::set_required_interval(const Duration& interval) {
 	required_interval_ = interval;
 }
 
+
+void Request::write_transport_lane(Game& game){
+
+	// schreib das ganze von anfang an solange wie die vorhandenen wege
+	// hahaha
+for (auto transfer : transfers_){
+if((!transfer->route_.route_.empty())
+	 &&(transfer->route_.route_[0].get(game)->get_building() != nullptr)
+	 &&(transfer->route_.route_[0].get(game)!=nullptr)
+   &&(transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building() != nullptr)
+   &&(transfer->route_.route_[transfer->route_.route_.size()-1].get(game)!=nullptr)
+	 &&(transfer->route_.route_[0].get(game)->get_building()->serial()!=transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->serial()))
+{
+if (type_==Widelands::wwWARE){
+	target_.get_owner()->transport_lanes << target().serial() << ";" << target_.descr().name()<< ";"
+	<< target_.get_owner()->egbase().descriptions().get_ware_descr(index_)->name() << ";" << count_ << ";";
+}
+
+if (type_==Widelands::wwWORKER){
+	target_.get_owner()->transport_lanes << target().serial() << ";" << target_.descr().name()<< ";"
+	<< target_.get_owner()->egbase().descriptions().get_worker_descr(index_)->name() << ";" << count_ << ";";
+}
+
+   
+		
+     {
+			
+
+			target_.get_owner()->transport_lanes << transfer->route_.route_[0].get(game)->get_building()->serial() << ";" 
+			<< transfer->route_.route_[0].get(game)->get_building()->descr().name() << ";"
+			<< transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->serial() << ";" 
+			<< transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->descr().name() ;
+			
+     } 
+		
+	
+target_.get_owner()->transport_lanes << "\n";
+}else { continue;}
+}
+
+}
+
+void Request::write_order_logs(){
+
+	target_.get_owner()->orderslogs << target().serial()<<";" << target_.descr().name()<< ";" << target_.get_owner()->egbase().get_gametime().get() << ";"
+  << target_.get_owner()->egbase().descriptions().get_ware_descr(index_)->name() << ";" << count_ << "\n";
+}
+
 /**
  * Begin transfer of the requested ware from the given supply.
  * This function does not take ownership of route, i.e. the caller is
@@ -421,8 +469,8 @@ void Request::start_transfer(Game& game, Supply& supp) {
 	assert(is_open());
 
 	if (game.descriptions().ware_exists(index_)){
-	target_.get_owner()->orderslogs << target().serial()<<";" << target_.descr().name()<< ";" << target_.get_owner()->egbase().get_gametime().get() << ";"
-  << target_.get_owner()->egbase().descriptions().get_ware_descr(index_)->name() << ";" << count_ << "\n";
+    
+    write_order_logs();
 }
 	::StreamWrite& ss = game.syncstream();
 	ss.unsigned_8(SyncEntry::kStartTransfer);
@@ -464,7 +512,7 @@ void Request::start_transfer(Game& game, Supply& supp) {
  */
 void Request::transfer_finish(Game& game, Transfer& t) {
 	Worker* const w = t.worker_;
-
+  write_transport_lane(game);
 	if (t.ware_ != nullptr) {
 		t.ware_->destroy(game);
 	}

@@ -165,6 +165,7 @@ Player::Player(EditorGameBase& the_egbase,
 
 	init_statistics();
 	wares_relationships.open(get_name()+"productionprograms.csv",std::fstream::app);
+	transport_lanes.open(get_name()+"transport_lanes.csv",std::fstream::app);
 	orderslogs.open(get_name()+"orderslogs.csv",std::fstream::app);
   orderslogs << "serial;name;time;requested_Ware;amount" << "\n";  //5
 	logs.open(get_name()+"Buildingslogs.csv",std::fstream::app);

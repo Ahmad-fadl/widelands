@@ -40,7 +40,7 @@ struct MapObjectSaver;
 struct Route : public IRoute {
 	friend struct Router;
 	friend class Request;
-
+  std::vector<OPtr<Flag>> route_;  ///< includes start and end flags
 	Route();
 
 	void init(int32_t) override;
@@ -68,7 +68,7 @@ struct Route : public IRoute {
 
 private:
 	int32_t totalcost_;
-	std::vector<OPtr<Flag>> route_;  ///< includes start and end flags
+	
 };
 }  // namespace Widelands
 

@@ -42,7 +42,7 @@ class Worker;
  */
 struct Transfer {
 	friend class Request;
-
+  Route route_;
 	Transfer(Game&, Request&, WareInstance&);
 	Transfer(Game&, Request&, Worker&);
 	Transfer(Game&, WareInstance&);
@@ -83,7 +83,7 @@ private:
 	OPtr<PlayerImmovable> destination_;
 	WareInstance* ware_;  ///< non-null iff this is transferring a ware
 	Worker* worker_;      ///< non-null iff this is transferring a worker
-	Route route_;
+	
 };
 }  // namespace Widelands
 
