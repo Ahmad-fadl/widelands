@@ -89,8 +89,9 @@ public:
 	}
 
 	void log_general_info(const EditorGameBase& egbase) const override;
-
+Building* creator_;
 private:
+   
 	ObjectPointer location_;
 	Economy* economy_;
 	DescriptionIndex descr_index_;

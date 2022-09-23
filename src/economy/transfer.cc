@@ -39,12 +39,12 @@
 namespace Widelands {
 
 Transfer::Transfer(Game& game, Request& req, WareInstance& it)
-   : game_(game), request_(&req), destination_(&req.target()), ware_(&it), worker_(nullptr) {
+   : ware_(&it), game_(game),  request_(&req), destination_(&req.target()),  worker_(nullptr) {
 	ware_->set_transfer(game, *this);
 }
 
 Transfer::Transfer(Game& game, Request& req, Worker& w)
-   : game_(game), request_(&req), destination_(&req.target()), ware_(nullptr), worker_(&w) {
+   : ware_(nullptr), game_(game),  request_(&req), destination_(&req.target()),  worker_(&w) {
 	worker_->start_task_transfer(game, this);
 }
 
@@ -53,7 +53,7 @@ Transfer::Transfer(Game& game, Request& req, Worker& w)
  * given ware instance and without a request.
  */
 Transfer::Transfer(Game& game, WareInstance& w)
-   : game_(game), request_(nullptr), ware_(&w), worker_(nullptr) {
+   :  ware_(&w), game_(game), request_(nullptr), worker_(nullptr) {
 }
 
 /**
@@ -61,7 +61,7 @@ Transfer::Transfer(Game& game, WareInstance& w)
  * worker and without a request.
  */
 Transfer::Transfer(Game& game, Worker& w)
-   : game_(game), request_(nullptr), ware_(nullptr), worker_(&w) {
+   : ware_(nullptr), game_(game),   request_(nullptr), worker_(&w) {
 }
 
 /**

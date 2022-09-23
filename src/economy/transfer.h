@@ -42,6 +42,7 @@ class Worker;
  */
 struct Transfer {
 	friend class Request;
+	WareInstance* ware_; 
   Route route_;
 	Transfer(Game&, Request&, WareInstance&);
 	Transfer(Game&, Request&, Worker&);
@@ -81,7 +82,7 @@ private:
 	Game& game_;
 	Request* request_;
 	OPtr<PlayerImmovable> destination_;
-	WareInstance* ware_;  ///< non-null iff this is transferring a ware
+	 ///< non-null iff this is transferring a ware
 	Worker* worker_;      ///< non-null iff this is transferring a worker
 	
 };

@@ -427,8 +427,9 @@ for (auto transfer : transfers_){
 if((!transfer->route_.route_.empty())
 	 &&(transfer->route_.route_[0].get(game)->get_building() != nullptr)
 	 &&(transfer->route_.route_[0].get(game)!=nullptr)
-   &&(transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building() != nullptr)
-   &&(transfer->route_.route_[transfer->route_.route_.size()-1].get(game)!=nullptr)
+	 &&(transfer->ware_ != nullptr)
+   &&(transfer->ware_->creator_ != nullptr)
+   //&&(transfer->route_.route_[transfer->route_.route_.size()-1].get(game)!=nullptr)
 	 &&(type_==Widelands::wwWARE )
 	 )
 {
@@ -446,8 +447,8 @@ if((!transfer->route_.route_.empty())
 
 	target_.get_owner()->transport_lanes << transfer->route_.route_[0].get(game)->get_building()->serial()  << ";" << transfer->route_.route_[0].get(game)->get_building()->descr().name()<< ";"
 	<< target_.get_owner()->egbase().descriptions().get_ware_descr(index_)->name() << ";" << count_ << ";" ;
-	target_.get_owner()->transport_lanes << transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->serial() << ";" 
-	<< transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->descr().name()
+	target_.get_owner()->transport_lanes << transfer->ware_->creator_->serial() << ";" 
+	<< transfer->ware_->creator_->descr().name()
 	<<   "\n";  
 
 

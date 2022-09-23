@@ -188,10 +188,12 @@ void IdleWareSupply::send_to_storage(Game& game, Warehouse* wh) {
 /*************************************************************************/
 WareInstance::WareInstance(DescriptionIndex const i, const WareDescr* const ware_descr)
    : MapObject(ware_descr),
+	 creator_(nullptr),
      economy_(nullptr),
      descr_index_(i),
      supply_(nullptr),
-     transfer_(nullptr) {
+     transfer_(nullptr)
+		  {
 }
 
 WareInstance::~WareInstance() {
@@ -205,6 +207,9 @@ WareInstance::~WareInstance() {
 
 bool WareInstance::init(EditorGameBase& egbase) {
 	return MapObject::init(egbase);
+		if (dynamic_cast<Widelands::Building*>(location_.get(egbase))!=nullptr){
+		creator_ = dynamic_cast<Widelands::Building*>(location_.get(egbase));
+	}
 }
 
 void WareInstance::cleanup(EditorGameBase& egbase) {
@@ -283,6 +288,8 @@ void WareInstance::set_location(EditorGameBase& egbase, MapObject* const locatio
 	} else {
 		set_economy(nullptr);
 	}
+
+
 }
 
 /**
