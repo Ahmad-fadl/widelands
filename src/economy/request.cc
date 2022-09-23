@@ -415,41 +415,47 @@ void Request::set_required_interval(const Duration& interval) {
 
 void Request::write_transport_lane(Game& game){
 
+
+
+
 	// schreib das ganze von anfang an solange wie die vorhandenen wege
 	// hahaha
+	int counter =0;
 for (auto transfer : transfers_){
+	 counter++;
+
 if((!transfer->route_.route_.empty())
 	 &&(transfer->route_.route_[0].get(game)->get_building() != nullptr)
 	 &&(transfer->route_.route_[0].get(game)!=nullptr)
    &&(transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building() != nullptr)
    &&(transfer->route_.route_[transfer->route_.route_.size()-1].get(game)!=nullptr)
-	 &&(transfer->route_.route_[0].get(game)->get_building()->serial()!=transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->serial()))
+	 &&(type_==Widelands::wwWARE )
+	 )
 {
-if (type_==Widelands::wwWARE){
-	target_.get_owner()->transport_lanes << target().serial() << ";" << target_.descr().name()<< ";"
-	<< target_.get_owner()->egbase().descriptions().get_ware_descr(index_)->name() << ";" << count_ << ";";
-}
 
-if (type_==Widelands::wwWORKER){
-	target_.get_owner()->transport_lanes << target().serial() << ";" << target_.descr().name()<< ";"
-	<< target_.get_owner()->egbase().descriptions().get_worker_descr(index_)->name() << ";" << count_ << ";";
-}
+
+  
 
    
-		
-     {
-			
+			//target_.get_owner()->transport_lanes << transfers_[0]->route_.route_[0].get(game)->get_building()->serial() << ";" 
+			//<< transfers_[0]->route_.route_[0].get(game)->get_building()->descr().name() << ";"
 
-			target_.get_owner()->transport_lanes << transfer->route_.route_[0].get(game)->get_building()->serial() << ";" 
-			<< transfer->route_.route_[0].get(game)->get_building()->descr().name() << ";"
-			<< transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->serial() << ";" 
-			<< transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->descr().name() ;
 			
-     } 
+		//	target_.get_owner()->transport_lanes << "\n";
+   
+
+	target_.get_owner()->transport_lanes << transfer->route_.route_[0].get(game)->get_building()->serial()  << ";" << transfer->route_.route_[0].get(game)->get_building()->descr().name()<< ";"
+	<< target_.get_owner()->egbase().descriptions().get_ware_descr(index_)->name() << ";" << count_ << ";" ;
+	target_.get_owner()->transport_lanes << transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->serial() << ";" 
+	<< transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->descr().name()
+	<<   "\n";  
+
+
 		
 	
-target_.get_owner()->transport_lanes << "\n";
-}else { continue;}
+
+}
+else { continue;}
 }
 
 }
