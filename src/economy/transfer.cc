@@ -145,7 +145,44 @@ PlayerImmovable* Transfer::get_next_step(PlayerImmovable* const location, bool& 
 	if (&locflag == &destflag) {
 		return &locflag == location ? destination : &locflag;
 	}
+   
+if((!route_.route_.empty())
+   &&(route_.route_[0].get(game_)!=nullptr)
+	 &&(route_.route_[0].get(game_)->get_building() != nullptr)
+	 //&&(transfer->ware_ != nullptr)
+   //&&(transfer->ware_->creator_ != nullptr)
+	 //&&(dynamic_cast<Widelands::Building*>(transfer->ware_->creator_)!=nullptr)
+	 &&(ware_ !=nullptr)
+	 //&&(request_->get_type()==Widelands::wwWARE )
+	 &&(route_.route_[route_.route_.size()-1].get(game_)!=nullptr)
+	 &&(route_.route_[route_.route_.size()-1].get(game_)->get_building() != nullptr)
+	 &&(route_.route_[0].get(game_)->get_building()->serial()!=route_.route_[route_.route_.size()-1].get(game_)->get_building()->serial()))
+	 
+{
+			//target_.get_owner()->transport_lanes << transfers_[0]->route_.route_[0].get(game)->get_building()->serial() << ";" 
+			//<< transfers_[0]->route_.route_[0].get(game)->get_building()->descr().name() << ";"
 
+			
+		//	target_.get_owner()->transport_lanes << "\n";
+		// check if one of both sites is a warehouse or a productionsite
+		if(
+			((dynamic_cast<const Widelands::ProductionSite*>(route_.route_[0].get(game_)->get_building())== nullptr) 
+		  || (dynamic_cast<const Widelands::Warehouse*>(route_.route_[0].get(game_)->get_building()) == nullptr )) 
+			|| ((dynamic_cast<const Widelands::ProductionSite*>(route_.route_[route_.route_.size()-1].get(game_)->get_building())== nullptr) 
+		  || (dynamic_cast<const Widelands::Warehouse*>(route_.route_[route_.route_.size()-1].get(game_)->get_building())== nullptr)) 
+			)    
+{
+	route_.route_[0].get(game_)->get_building()->get_owner()->transfer_tl << route_.route_[0].get(game_)->get_building()->serial()  << ";" << route_.route_[0].get(game_)->get_building()->descr().name()<< ";"
+	<< route_.route_[0].get(game_)->get_building()->get_owner()->egbase().descriptions().get_ware_descr(ware_->descr_index())->name() << ";" << route_.route_.size() << ";" ;
+	//target_.get_owner()->transport_lanes << transfer->ware_->creator_->serial() << ";" 
+	//<< transfer->ware_->creator_->descr().name()
+	route_.route_[0].get(game_)->get_building()->get_owner()->transfer_tl<< route_.route_[route_.route_.size()-1].get(game_)->get_building()->serial() << ";" 
+	<< route_.route_[route_.route_.size()-1].get(game_)->get_building()->descr().name() 
+	<<   "\n";  
+  route_.route_[0].get(game_)->get_building()->get_owner()->transfer_tl.flush();
+	}
+
+}
 	// Brute force: recalculate the best route every time
 	if (!locflag.get_economy(type)->find_route(locflag, destflag, &route_)) {
 		tlog("destination appears to have become split from current location -> fail\n");

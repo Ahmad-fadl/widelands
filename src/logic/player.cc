@@ -139,7 +139,9 @@ Player::Player(EditorGameBase& the_egbase,
                const RGBColor& pc,
                const TribeDescr& tribe_descr,
                const std::string& name)
-   : egbase_(the_egbase),
+   : planning_timer(0),
+	   uploads_count(1),
+	   egbase_(the_egbase),
      initialization_index_(initialization_index),
      playercolor_(pc),
      team_number_(0),
@@ -164,11 +166,15 @@ Player::Player(EditorGameBase& the_egbase,
 	set_name(name);
 
 	init_statistics();
+	test_productin_sites.open(get_name()+"test_prod.csv",std::fstream::app);
+	ware_house_independet_demand.open(get_name()+"independent_demand.csv",std::fstream::app);
 	wares_relationships.open(get_name()+"productionprograms.csv",std::fstream::app);
 	transport_lanes.open(get_name()+"transport_lanes.csv",std::fstream::app);
+	transfer_tl.open(get_name()+"transfer_tl.csv",std::fstream::app);
 	orderslogs.open(get_name()+"orderslogs.csv",std::fstream::app);
   orderslogs << "serial;name;time;requested_Ware;amount" << "\n";  //5
 	logs.open(get_name()+"Buildingslogs.csv",std::fstream::app);
+	test_request_change.open(get_name()+"test_request_change.csv",std::fstream::app);
   logs << "serial;name;time;ware_economy_serial;worker_economy_serial;position;reserved_by_worker;" //7
 	 << "workers;is_mine;is_port;needs_seafaring;"  /* "is market" is the last commun attribute -4 */
 	 <<"needs_water_ways;passable;is_production_site;is_warehouse;is_market;" //5

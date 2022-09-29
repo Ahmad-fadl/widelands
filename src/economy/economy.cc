@@ -17,7 +17,7 @@
  */
 
 #include "economy/economy.h"
-
+#include <filesystem>
 #include <memory>
 #include "base/log.h"
 #include "base/macros.h"
@@ -34,8 +34,34 @@
 #include "logic/map_objects/tribes/tribe_descr.h"
 #include "logic/map_objects/tribes/warehouse.h"
 #include "logic/player.h"
-
+#include "network/gamehost.h"
+#include <iostream>
+#include "wui/game_exit_confirm_box.h"
 namespace Widelands {
+std::vector<std::vector<std::string>> static read_plan_csv(std::string fname){
+std::vector<std::vector<std::string>> content;
+std::vector<std::string> row;
+std::string line, word;
+ 
+std::fstream file (fname, std::ios::in);
+if(file.is_open())
+{
+while(getline(file, line))
+{
+row.clear();
+ 
+std::stringstream str(line);
+ 
+while(getline(str, word, ';'))
+row.push_back(word);
+content.push_back(row);
+}
+}
+else
+std::cout<<"Could not open the file\n";
+return content;
+}
+
 
 Serial Economy::last_economy_serial_ = 0;
 
@@ -799,6 +825,218 @@ struct RSPairStruct {
 void Economy::process_requests(Game& game, RSPairStruct* supply_pairs) {
 	// Algorithm can decide that wares are not to be delivered to constructionsite
 	// right now, therefore we need to shcedule next pairing
+	//dynamic_cast<GameHost*>(game.game_controller())->force_pause();
+/*
+	int counter =0;
+	std::string old_="old fucking request";
+	std::string new_="new fucking request";
+
+
+		for (Request* i : requests_){
+		Request& req = *i;
+
+		// We somehow get desynced request lists that don't trigger desync
+		// alerts, so add info to the sync stream here.
+		{
+			::StreamWrite& ss = game.syncstream();
+			ss.unsigned_8(SyncEntry::kProcessRequests);
+			ss.unsigned_8(req.get_type());
+			ss.unsigned_8(req.get_index());
+			ss.unsigned_32(req.target().serial());
+		}
+			if (
+				(dynamic_cast<Widelands::Building*>(&(i->target()))!=nullptr)
+			&&(dynamic_cast<Widelands::Building*>(&(i->target()))->get_owner()!=nullptr))
+{
+	dynamic_cast<Widelands::Building*>(&i->target())->get_owner()->test_request_change << counter ;
+		if ((dynamic_cast<Widelands::Building*>(&(i->target()))!=nullptr)
+		    && (i->get_type()== Widelands::WareWorker::wwWARE)){
+					//	target_.get_owner()->transport_lanes << transfer->route_.route_[0].get(game)->get_building()->serial()
+if (warehouses_.size()>0)
+      {		
+		if(dynamic_cast<Widelands::Building*>(warehouses_[0])!=nullptr){
+			dynamic_cast<Widelands::Building*>(&i->target())->get_owner()->test_request_change << old_ << dynamic_cast<Widelands::Building*>(&i->target())->serial()
+			<< ";" << i->get_count() << "fuck" ;
+			Widelands::Request newrequest (*(dynamic_cast<Widelands::PlayerImmovable*>(warehouses_[0])),i->get_index(), Widelands::Warehouse::request_cb,Widelands::WareWorker::wwWARE,false);
+			newrequest.set_count(66);
+			remove_request(*i);
+			add_request(newrequest);
+			//requests_.insert(i,);
+			dynamic_cast<Widelands::Building*>(&i->target())->get_owner()->test_request_change  << new_
+			<< dynamic_cast<Widelands::Building*>(&newrequest.target())->serial()
+			<< ";" << newrequest.get_count() << "\n";
+			}
+			}
+
+		}
+		counter++;
+		}
+	}
+	*/
+	//dynamic_cast<GameHost*>(game.game_controller())->end_forced_pause();
+
+	// das war das letzte
+	//owner_.test_productin_sites << game.get_gametime().get()/1000 <<"-" << owner_.planning_timer.get()/1000<< "=" << (game.get_gametime().get()/1000-owner_.planning_timer.get()/1000)-1000 << "\n";
+	//&&((game.get_gametime().get()/1000-owner_.planning_timer.get()/1000)<=(1005))
+
+	// das spiel nach dem timer pausieren 
+	// dann python skript trigern um die daten hochzuladen und den plan runterzuladen
+	if (((game.get_gametime().get()/1000-owner_.planning_timer.get()/1000)>=(1000)) 
+	    &&(warehouses_.size()>0)
+			&&(warehouses_[0]!=nullptr)
+	    &&(owner_.tribe().descname()=="Empire"))
+	{
+		//after 10 plans quit
+		if (owner_.uploads_count==10){
+			//system("python3 delete_master_data.py");
+			
+			GameExitConfirmBox exit_window(*(dynamic_cast<UI::Panel*>(game.get_ibase())),*(game.get_igbase()));
+			exit_window.clicked_ok();
+			GameExitConfirmBox exit_window1(*(dynamic_cast<UI::Panel*>(game.get_ibase())),*(game.get_igbase()));
+			exit_window1.clicked_ok();
+		}
+		dynamic_cast<GameHost*>(game.game_controller())->force_pause();
+		owner_.test_productin_sites << owner_.uploads_count << "\n";
+   	
+		owner_.planning_timer=game.get_gametime();
+		std::string python_trigger="python3 send_data_to_ibp.py "+ std::to_string(owner_.uploads_count);
+		system(python_trigger.c_str());
+		owner_.uploads_count++;
+		std::vector<std::vector<std::string>> ibp_plan;
+		bool dep_demand_file=false;
+		while (!dep_demand_file)
+		{
+			for(const auto & entry : std::__fs::filesystem::directory_iterator(std::__fs::filesystem::current_path())){
+			 if (entry.path().generic_string().find("new_depdemand.csv") != std::string::npos){
+			  owner_.test_productin_sites << "one plan" << "\n";
+				dep_demand_file=true;
+				ibp_plan = read_plan_csv("new_depdemand.csv");
+				system("rm new_depdemand.csv");
+				//break;
+			 }
+			}
+		}
+		// hier wird der IBP-plan integriert
+
+
+	std::vector<std::pair<Widelands::DescriptionIndex,std::pair<Widelands::Serial,Widelands::Quantity> >>  requests_to_be_added ;
+	
+	for (size_t j=1;j<ibp_plan.size();j++)
+{		
+
+	for (Request* i : requests_){
+		Request& req = *i;
+		
+
+
+	 if ((dynamic_cast<Widelands::Building*>(&(i->target()))!=nullptr)
+			&&(dynamic_cast<Widelands::Building*>(&(i->target()))->get_owner()!=nullptr)
+			&&(i->get_type()==WareWorker::wwWARE)
+			&&(warehouses_.size()>0)
+			&&(warehouses_[0]!=nullptr))
+{
+
+//if the request in the plann already exists only set count to same in the ibp plan
+//owner_.test_request_change << "ibp_plan_prodid : " + ibp_plan[j][0] + "originalrequest : " + game.descriptions().get_ware_descr(req.get_index())->descname()
+//                           << "ibp_plan_locid : " << Widelands::Serial(std::stoi(ibp_plan[j][1])) << "originalrequest : " <<req.target().serial() <<"\n" ;
+//													 owner_.test_request_change.flush();
+if ((ibp_plan[j][0]==game.descriptions().get_ware_descr(req.get_index())->descname())
+    &&(Widelands::Serial(std::stoi(ibp_plan[j][1]))==req.target().serial()))
+		{
+		owner_.test_productin_sites << "prodid:"+ ibp_plan[j][0] + ", locid:" +ibp_plan[j][1]+ ibp_plan[j][2] + " request changed from count :" << req.get_count() << "to count"+ ibp_plan[j][3] << "\n";
+		req.set_count(std::stoi(ibp_plan[j][3]));
+    owner_.test_productin_sites.flush();
+		break;
+		}
+
+}
+
+		}
+
+
+std::pair<Widelands::DescriptionIndex,std::pair<Widelands::Serial,Widelands::Quantity>> temp;
+temp.first=game.descriptions().ware_index(ibp_plan[j][0]);
+temp.second.first = Widelands::Serial(std::stoi(ibp_plan[j][1]));  
+temp.second.second=  Widelands::Quantity(std::stoi(ibp_plan[j][3])) ;
+		requests_to_be_added.push_back(temp);
+
+		}
+for (auto i : requests_to_be_added){
+		if (dynamic_cast<Widelands::Warehouse*>(game.objects().get_object(i.second.first))!=nullptr)
+		{	
+			Widelands::Request newrequest (*(dynamic_cast<Widelands::PlayerImmovable*>(game.objects().get_object(i.second.first))) , i.first
+	, Widelands::Warehouse::request_cb, Widelands::WareWorker::wwWARE,true);
+	newrequest.set_count(i.second.second);
+	}
+		if (dynamic_cast<Widelands::ProductionSite*>(game.objects().get_object(i.second.first))!=nullptr)
+		{	
+			Widelands::Request newrequest (*(dynamic_cast<Widelands::PlayerImmovable*>(game.objects().get_object(i.second.first))) , i.first
+	, Widelands::ProductionSite::request_worker_callback ,Widelands::WareWorker::wwWARE,true);
+	newrequest.set_count(i.second.second);
+	}
+	owner_.test_productin_sites << "added request: prodid" << game.descriptions().get_ware_descr(i.first)->descname()
+	<< ",locid" << i.second.first << i.second.second << "\n";
+	owner_.test_productin_sites.flush();
+
+}
+
+    requests_to_be_added.clear();
+		dynamic_cast<GameHost*>(game.game_controller())->end_forced_pause();
+} 
+		/*
+	std::vector<std::pair<RequestList::iterator,Request*>>  requests_to_be_added ;
+	std::vector<DescriptionIndex> indexes ;
+	std::vector<Request *>to_delete_requests ;
+	int counter =0;
+		for (Request* i : requests_){
+			Request& req = *i;
+		
+		{
+			::StreamWrite& ss = game.syncstream();
+			ss.unsigned_8(SyncEntry::kProcessRequests);
+			ss.unsigned_8(req.get_type());
+			ss.unsigned_8(req.get_index());
+			ss.unsigned_32(req.target().serial());
+		}
+
+			if ((dynamic_cast<Widelands::Building*>(&(i->target()))!=nullptr)
+			&&(dynamic_cast<Widelands::Building*>(&(i->target()))->get_owner()!=nullptr)
+			&&(i->get_type()==WareWorker::wwWARE)
+			&&(warehouses_.size()>0)
+			&&(warehouses_[0]!=nullptr))
+{
+	indexes.push_back(i->get_index());
+	
+	to_delete_requests.push_back(i);
+
+}
+counter++;
+		}
+		for (size_t i=0;i <to_delete_requests.size();i++){
+			//remove_request(*to_delete_requests[i]);
+		//	requests_.erase(to_delete_requests[i]);
+			 // remove_request(*to_delete_requests[i]);
+		}
+		for (DescriptionIndex i : indexes){
+			Widelands::Request newrequest (*warehouses_[0]
+	,i, Widelands::Warehouse::request_cb,Widelands::WareWorker::wwWARE,false);
+	newrequest.set_count(66);
+
+dynamic_cast<Widelands::Building*>(&(newrequest.target()))->get_owner()->test_request_change 
+  << "new_request" << game.descriptions().get_ware_descr(newrequest.get_index())->name() << ";"
+	<< newrequest.target().serial() << ";"
+	<< warehouses_[0]->descr().name() 
+	<< "\n" ;
+		}
+		*/
+
+		// bis hie hin
+/*for (auto i : requests_to_be_added){
+	//requests_.insert(i.first,i.second);
+	add_request(*i.second);
+}*/
+
+
 	for (Request* temp_req : requests_) {
 		Request& req = *temp_req;
 

@@ -163,6 +163,7 @@ public:
 	 */
 	virtual void set_filled(Quantity q) = 0;
 
+  void write_order_logs();
 	/**
 	 * Set the time between consumption of items when the owning building
 	 * is consuming at full speed.

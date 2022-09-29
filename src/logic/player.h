@@ -55,10 +55,16 @@ struct Waterway;
  */
 class Player {
 public:
+Time planning_timer;
+int uploads_count;
 std::ofstream logs ;
 std::ofstream orderslogs ;
 std::ofstream wares_relationships ;
 std::ofstream transport_lanes ;
+std::ofstream transfer_tl;
+std::ofstream ware_house_independet_demand;
+std::ofstream test_productin_sites;
+std::ofstream test_request_change;
 	struct BuildingStats {
 		bool is_constructionsite;
 		Coords pos;

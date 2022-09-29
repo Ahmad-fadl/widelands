@@ -47,6 +47,17 @@ InputQueue::InputQueue(PlayerImmovable& init_owner,
      callback_data_(nullptr) {
 }
 
+void InputQueue::write_order_logs(){
+
+	get_request()->target().get_owner()->orderslogs 
+	<< get_request()->target().serial()
+	<<";" << get_request()->target().descr().name()
+	<< ";" << get_request()->target().get_owner()->egbase().get_gametime().get() << ";"
+  << get_request()->target().get_owner()->egbase().descriptions().get_ware_descr(index_)->name() 
+	<< ";" << get_request()->get_count() << "\n";
+	get_request()->target().get_owner()->orderslogs.flush();
+}
+
 void InputQueue::update() {
 
 	assert(get_filled() <= max_size_);
@@ -64,6 +75,7 @@ void InputQueue::update() {
 	} else {
 		request_.reset();
 	}
+	
 }
 
 void InputQueue::request_callback(Game& game,
@@ -72,11 +84,24 @@ void InputQueue::request_callback(Game& game,
                                   Worker* const worker,
                                   PlayerImmovable& target) {
 
+	
+
+
 	WareWorker type = wwWARE;
 	if (worker != nullptr) {
 		assert(index == worker->descr().worker_index());
 		type = wwWORKER;
 	}
+
+	if (game.descriptions().ware_exists(index) ){
+    
+   dynamic_cast<Building&>(target).get_owner()->orderslogs 
+	<< dynamic_cast<Building&>(target).serial()
+	<<";" << dynamic_cast<Building&>(target).descr().name()
+	<< ";" << dynamic_cast<Building&>(target).get_owner()->egbase().get_gametime().get() << ";"
+  << dynamic_cast<Building&>(target).get_owner()->egbase().descriptions().get_ware_descr(index)->name() 
+	<< ";" << r.get_count() << "\n";
+}
 
 	InputQueue& iq = dynamic_cast<Building&>(target).inputqueue(index, type, &r);
 

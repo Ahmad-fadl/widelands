@@ -300,6 +300,120 @@ ProductionSite::ProductionSite(const ProductionSiteDescr& ps_descr)
 }
 
 void ProductionSite::write_wares_relationships_to_file(EditorGameBase& egbase) {	
+
+
+/* test
+			get_owner()->test_productin_sites  << serial() <<";" << descr_->name() << ";" << serial() << ";{";
+		int test_counter =0;
+		for (auto a : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->input_wares () ){
+			{ get_owner()->test_productin_sites << "inout_wares" <<'"' << egbase.descriptions().get_ware_descr(a.first)->name() << '"' << ':'  << '"' << int(a.second) << '"';
+			test_counter++;
+			if (test_counter != int(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->input_wares().size()))
+			get_owner()->test_productin_sites << ",";
+			}
+		}
+
+				test_counter =0;
+		for (auto a : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->output_ware_types() ){
+			{ get_owner()->test_productin_sites <<"output_ware_types" <<'"' << egbase.descriptions().get_ware_descr(a)->name() << '"' << ':'  << '"' << 1 << '"';
+			test_counter++;
+			if (test_counter != int(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->output_ware_types().size()))
+			get_owner()->test_productin_sites << ",";
+			}
+		}
+
+
+						test_counter =0;
+		for (auto a : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needed_attributes() ){
+			{ get_owner()->test_productin_sites <<"needed_attributes"<< to_string(a.first) <<'"' << egbase.descriptions().get_ware_descr(a.second)->name() << '"' << ':'  << '"' << 1 << '"';
+			test_counter++;
+			if (test_counter != int(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->needed_attributes().size()))
+			get_owner()->test_productin_sites << ",";
+			}
+		}
+
+		test_counter =0;
+		for (auto a : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_attributes() ){
+			{ get_owner()->test_productin_sites <<"collected_attributes"<< to_string(a.first) <<'"' << egbase.descriptions().get_ware_descr(a.second)->name() << '"' << ':'  << '"' << 1 << '"';
+			test_counter++;
+			if (test_counter != int(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_attributes().size()))
+			get_owner()->test_productin_sites << ",";
+			}
+		}
+
+				test_counter =0;
+		for (auto a : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->created_attributes() ){
+			{ get_owner()->test_productin_sites <<"created_attributes"<< to_string(a.first) <<'"' << egbase.descriptions().get_ware_descr(a.second)->name() << '"' << ':'  << '"' << 1 << '"';
+			test_counter++;
+			if (test_counter != int(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->created_attributes().size()))
+			get_owner()->test_productin_sites << ",";
+			}
+		}
+
+		for (auto a : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_resources() ){
+			{ get_owner()->test_productin_sites <<"collected_resources" <<'"' << a.first << '"' << ':'  << '"' << 1 << '"';
+			test_counter++;
+			if (test_counter != int(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_resources().size()))
+			get_owner()->test_productin_sites << ",";
+			}
+		}
+
+		for (auto a : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->created_resources() ){
+			{ get_owner()->test_productin_sites <<"created_resources" <<'"' << a << '"' << ':'  << '"' << 1 << '"';
+			test_counter++;
+			if (test_counter != int(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->created_resources().size()))
+			get_owner()->test_productin_sites << ",";
+			}
+		}
+
+				for (auto a : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_bobs () ){
+			{ get_owner()->test_productin_sites <<"collected_bobs " <<'"' << a << '"' << ':'  << '"' << 1 << '"';
+			test_counter++;
+			if (test_counter != int(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_bobs ().size()))
+			get_owner()->test_productin_sites << ",";
+			}
+		}
+
+						for (auto a : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->created_bobs () ){
+			{ get_owner()->test_productin_sites <<"created_bobs " <<'"' << a << '"' << ':'  << '"' << 1 << '"';
+			test_counter++;
+			if (test_counter != int(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->created_bobs ().size()))
+			get_owner()->test_productin_sites << ",";
+			}
+		}
+
+get_owner()->test_productin_sites <<"};"  <<"\n";
+
+end of test
+*/
+
+
+size_t outputs_from_prod_programs_counter=0;
+for (const auto& x : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->programs()){
+outputs_from_prod_programs_counter += x.second.get()->produced_wares().size();
+
+}
+
+if ((dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->input_wares().size()==0)
+   &&(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->output_ware_types().size() > outputs_from_prod_programs_counter)
+	 &&(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_resources().size()<dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->output_ware_types().size()))
+	 {
+
+		for (auto a : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->output_ware_types() ){
+			 get_owner()->wares_relationships  << serial() <<";" << descr_->name() << ";" << "collect" << ";" 
+			<< "collect_"+egbase.descriptions().get_ware_descr(a)->name() << ";{"
+			 <<'"' << egbase.descriptions().get_ware_descr(a)->name() << '"' << ':'  << '"' << 1 << '"';
+      get_owner()->wares_relationships  << "};{};{};" << egbase.get_gametime().get() <<"\n";
+		}
+
+
+	
+	get_owner()->wares_relationships.flush();
+ return ;
+
+}
+
+
 	for (const auto& x : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->programs()){
 
 // schreib das ganze von anfang an so viel wie die länge von den alternativen gütern
@@ -429,10 +543,84 @@ else{
 		for (auto a : x.second.get()->produced_wares() ){
 			{ get_owner()->wares_relationships <<'"' << egbase.descriptions().get_ware_descr(a.first)->name() << '"' << ':'  << '"' << int(a.second) << '"';
 			counter++;
-			if (counter != int(x.second.get()->produced_wares().size()))
+			if (counter == int(x.second.get()->produced_wares().size())){continue;}
+			if ((counter < int(x.second.get()->produced_wares().size()) )
+			||(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_attributes().size()>0)
+			||(dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_resources().size()>0))
 			get_owner()->wares_relationships << ",";
 			}
 		}
+
+		//hier ist ein versuch über die actions
+		/*
+		for (size_t i=0 ; i < x.second->size();i++){
+			//const Widelands::ProductionProgram::Action *action = &x.second.get()->operator[](i);
+			
+      get_owner()->wares_relationships << "this action is:" 
+			<<  x.second.get()->operator[](i).produced_wares().size() << ",";
+			size_t fuckcount=0;
+		for (auto bom : x.second.get()->operator[](i).produced_wares()){
+			fuckcount++;
+			get_owner()->wares_relationships << egbase.descriptions().get_ware_descr(bom.first)->name() ;
+			if (fuckcount<x.second.get()->operator[](i).produced_wares().size()){
+				get_owner()->wares_relationships << "this is the new fuck" ;
+			}
+		}
+			
+			if (  dynamic_cast<const Widelands::ProductionProgram::ActCallWorker*>(&x.second.get()->operator[](i)) != nullptr){
+            
+            for (auto bom : dynamic_cast<const Widelands::ProductionProgram::ActCallWorker*>(&x.second.get()->operator[](i))->produced_wares())
+            {
+							get_owner()->wares_relationships << "fuck" << egbase.descriptions().get_ware_descr(bom.first)->name()<< '"' << ";";
+						}
+			}
+      
+
+
+			//get_owner()->wares_relationships << "fuck;" << egbase.descriptions().get_ware_descr(a)->name() ;
+		}
+for (size_t i =0; i<working_positions_.size() ;i++){
+if (working_positions_[i].worker.get(egbase)!=nullptr)
+	{get_owner()->wares_relationships << "this is a normal fucking not main worker" << working_positions_[i].worker.get(egbase)->descr().name();}
+
+	if  (int(working_positions_.size())>main_worker_) 
+	{
+		if (working_positions_[main_worker_].worker.is_set())
+	{
+		get_owner()->wares_relationships << "this is a fucking" << working_positions_[main_worker_].worker.get(egbase)->descr().name();
+		}
+		}
+}
+*/
+if (( int(x.second.get()->produced_wares().size())==1 ) && dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_attributes().size()>0)
+{
+	get_owner()->wares_relationships << ",";
+}
+
+size_t fuckcounter=0;
+for (auto fuck : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_attributes())
+{
+fuckcounter++;
+get_owner()->wares_relationships  << '"'  << egbase.descriptions().get_ware_descr(fuck.second)->name()  << '"' << ':'  << '"' << 1 << '"'   ;
+if (fuckcounter == dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_attributes().size()){continue;}
+if (fuckcounter < dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_attributes().size()
+|| (dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_resources().size()>0)){
+	get_owner()->wares_relationships << ",";
+}
+}
+
+if ((dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_attributes().size()==0)&&(x.second.get()->produced_wares().size()==0)){
+	 fuckcounter=0;
+for (auto fuck : dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_resources())
+{
+fuckcounter++;
+get_owner()->wares_relationships << '"' << fuck.first.substr(9)  << '"' << ':'  << '"' << 1 << '"';
+if (fuckcounter < dynamic_cast<const Widelands::ProductionSiteDescr*>(descr_)->collected_resources().size()){
+	get_owner()->wares_relationships << ",";
+}
+}
+}
+
 		get_owner()->wares_relationships <<"};{" ;
 		counter=0;
 		for (auto a : x.second.get()->recruited_workers() ){
@@ -484,6 +672,7 @@ else{
 		}
 		get_owner()->wares_relationships <<"};" << egbase.get_gametime().get() <<"\n";
 	}
+	get_owner()->wares_relationships.flush();
 	}
 	
 	}
@@ -566,7 +755,7 @@ if (! order.worker.is_set() && order.worker_request != nullptr){
   << ":" << order.worker_request->get_count() << ",target" << order.worker_request->target().serial() << "}" ;
 }
 get_owner()->logs << ")"<<  "\n";
-
+get_owner()->logs.flush();
 }
 
 void ProductionSite::load_finish(EditorGameBase& egbase) {
@@ -732,7 +921,7 @@ void ProductionSite::format_statistics_string() {
  */
 bool ProductionSite::init(EditorGameBase& egbase) {
 	Building::init(egbase);
-  write_wares_relationships_to_file(egbase);
+  
 	const BillOfMaterials& input_wares = descr().input_wares();
 	const BillOfMaterials& input_workers = descr().input_workers();
 	input_queues_.resize(input_wares.size() + input_workers.size());
@@ -757,7 +946,7 @@ bool ProductionSite::init(EditorGameBase& egbase) {
 			}
 		}
 	}
-
+write_wares_relationships_to_file(egbase);
 	if (upcast(Game, game, &egbase)) {
 		try_start_working(*game);
 	}

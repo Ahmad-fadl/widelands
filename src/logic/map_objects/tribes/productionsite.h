@@ -325,6 +325,8 @@ class ProductionSite : public Building {
 	MO_DESCR(ProductionSiteDescr)
 
 public:
+	static void
+	request_worker_callback(Game&, Request&, DescriptionIndex, Worker*, PlayerImmovable&);
 	explicit ProductionSite(const ProductionSiteDescr& descr);
 
 	void log_general_info(const EditorGameBase&) const override;
@@ -444,8 +446,6 @@ protected:
 	};
 
 	Request& request_worker(DescriptionIndex);
-	static void
-	request_worker_callback(Game&, Request&, DescriptionIndex, Worker*, PlayerImmovable&);
 
 	/**
 	 * Determine the next program to be run when the last program has finished.

@@ -450,6 +450,24 @@ get_owner()->logs << ")"<< ";Numberof wares:" << get_wares().get_nrwareids()  <<
 	get_owner()->logs << "};" 
 	<< "na;na;na" /* productionsites attributes */
 	<< "\n";
+	get_owner()->logs.flush();
+
+
+  get_owner()->ware_house_independet_demand << std::to_string(serial())+";"
+	+descr_->name()+";" << game.get_gametime().get() <<";{" ;
+	int counter=0;
+	for (Widelands::DescriptionIndex i=0; i < get_wares().get_nrwareids();i++)	{
+	
+	get_owner()->ware_house_independet_demand << '"' <<   game.descriptions().get_ware_descr(i)->name() 
+	<< '"' << ":" << '"' << get_economy(wwWARE)->target_quantity(i).permanent << '"' ;
+	if  ((counter+1) != int(get_wares().get_nrwareids())){ 
+		get_owner()->ware_house_independet_demand << "," ;
+		}
+	counter++;
+	
+
+}
+get_owner()->ware_house_independet_demand << "}"<< "\n";
 }
 
 Warehouse::~Warehouse() {

@@ -51,7 +51,8 @@ Request IMPLEMENTATION
 Request::Request(PlayerImmovable& init_target,
                  DescriptionIndex const index,
                  CallbackFn const cbfn,
-                 WareWorker const w)
+                 WareWorker const w,
+								 bool add_to_economy)
    : type_(w),
      target_(init_target),
      target_building_(dynamic_cast<Building*>(&init_target)),
@@ -76,7 +77,7 @@ Request::Request(PlayerImmovable& init_target,
 		   "creating worker request with index %u, but the worker for this index doesn't exist",
 		   index);
 	}
-	if (economy_ != nullptr) {
+	if ((economy_ != nullptr)&& (add_to_economy)) {
 		economy_->add_request(*this);
 	}
 }
@@ -413,7 +414,7 @@ void Request::set_required_interval(const Duration& interval) {
 }
 
 
-void Request::write_transport_lane(Game& game){
+void Request::write_transport_lane(EditorGameBase& game){
 
 
 
@@ -425,32 +426,31 @@ for (auto transfer : transfers_){
 	 counter++;
 
 if((!transfer->route_.route_.empty())
+   &&(transfer->route_.route_[0].get(game)!=nullptr)
 	 &&(transfer->route_.route_[0].get(game)->get_building() != nullptr)
-	 &&(transfer->route_.route_[0].get(game)!=nullptr)
-	 &&(transfer->ware_ != nullptr)
-   &&(transfer->ware_->creator_ != nullptr)
-   //&&(transfer->route_.route_[transfer->route_.route_.size()-1].get(game)!=nullptr)
+	 //&&(transfer->ware_ != nullptr)
+   //&&(transfer->ware_->creator_ != nullptr)
+	 //&&(dynamic_cast<Widelands::Building*>(transfer->ware_->creator_)!=nullptr)
 	 &&(type_==Widelands::wwWARE )
-	 )
+	 &&(transfer->route_.route_[transfer->route_.route_.size()-1].get(game)!=nullptr)
+	 &&(transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building() != nullptr)
+	 &&(transfer->route_.route_[0].get(game)->get_building()->serial()!=transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->serial()))
+	 
 {
-
-
-  
-
-   
 			//target_.get_owner()->transport_lanes << transfers_[0]->route_.route_[0].get(game)->get_building()->serial() << ";" 
 			//<< transfers_[0]->route_.route_[0].get(game)->get_building()->descr().name() << ";"
 
 			
 		//	target_.get_owner()->transport_lanes << "\n";
-   
 
 	target_.get_owner()->transport_lanes << transfer->route_.route_[0].get(game)->get_building()->serial()  << ";" << transfer->route_.route_[0].get(game)->get_building()->descr().name()<< ";"
-	<< target_.get_owner()->egbase().descriptions().get_ware_descr(index_)->name() << ";" << count_ << ";" ;
-	target_.get_owner()->transport_lanes << transfer->ware_->creator_->serial() << ";" 
-	<< transfer->ware_->creator_->descr().name()
+	<< target_.get_owner()->egbase().descriptions().get_ware_descr(index_)->name() << ";" << transfer->route_.route_.size() << ";" ;
+	//target_.get_owner()->transport_lanes << transfer->ware_->creator_->serial() << ";" 
+	//<< transfer->ware_->creator_->descr().name()
+	target_.get_owner()->transport_lanes<< transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->serial() << ";" 
+	<< transfer->route_.route_[transfer->route_.route_.size()-1].get(game)->get_building()->descr().name() 
 	<<   "\n";  
-
+  target_.get_owner()->transport_lanes.flush();
 
 		
 	
@@ -460,13 +460,13 @@ else { continue;}
 }
 
 }
-
+/*
 void Request::write_order_logs(){
 
 	target_.get_owner()->orderslogs << target().serial()<<";" << target_.descr().name()<< ";" << target_.get_owner()->egbase().get_gametime().get() << ";"
   << target_.get_owner()->egbase().descriptions().get_ware_descr(index_)->name() << ";" << count_ << "\n";
 }
-
+*/
 /**
  * Begin transfer of the requested ware from the given supply.
  * This function does not take ownership of route, i.e. the caller is
@@ -474,11 +474,12 @@ void Request::write_order_logs(){
  */
 void Request::start_transfer(Game& game, Supply& supp) {
 	assert(is_open());
-
+	
+/*
 	if (game.descriptions().ware_exists(index_)){
     
     write_order_logs();
-}
+}*/
 	::StreamWrite& ss = game.syncstream();
 	ss.unsigned_8(SyncEntry::kStartTransfer);
 	ss.unsigned_32(target().serial());
@@ -505,7 +506,7 @@ void Request::start_transfer(Game& game, Supply& supp) {
 		break;
 	}
 	}
-
+write_transport_lane(game);
 	transfers_.push_back(t);
 	if (!is_open()) {
 		economy_->remove_request(*this);
@@ -519,7 +520,7 @@ void Request::start_transfer(Game& game, Supply& supp) {
  */
 void Request::transfer_finish(Game& game, Transfer& t) {
 	Worker* const w = t.worker_;
-  write_transport_lane(game);
+ // write_transport_lane(game);
 	if (t.ware_ != nullptr) {
 		t.ware_->destroy(game);
 	}

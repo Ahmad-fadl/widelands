@@ -107,6 +107,7 @@ class Warehouse : public Building {
 	MO_DESCR(WarehouseDescr)
 
 public:
+	static void request_cb(Game&, Request&, DescriptionIndex, Worker*, PlayerImmovable&);
   void write_data_to_file(Game& game) override ;
 
 	/**
@@ -282,7 +283,7 @@ private:
 		void cleanup();
 	};
 
-	static void request_cb(Game&, Request&, DescriptionIndex, Worker*, PlayerImmovable&);
+
 	void check_remove_stock(Game&);
 
 	bool load_finish_planned_worker(PlannedWorkers& pw);

@@ -40,3 +40,8 @@ gmon.out
 # Validation checks
 po_validation
 clang-tidy.log
+#python notebooks
+timeseriesdata.ipynb
+planning_run.ipynb
+data_upload.ipynb
+data_integration.ipynb

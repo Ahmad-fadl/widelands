@@ -58,7 +58,7 @@ public:
 
 	using CallbackFn = void (*)(Game&, Request&, DescriptionIndex, Worker*, PlayerImmovable&);
 
-	Request(PlayerImmovable& target, DescriptionIndex, CallbackFn, WareWorker);
+	Request(PlayerImmovable& target, DescriptionIndex, CallbackFn, WareWorker, bool add_to_economy=true);
 	~Request() override;
 
 	PlayerImmovable& target() const {
@@ -109,9 +109,9 @@ public:
 
 	void start_transfer(Game&, Supply&);
 
-  void write_transport_lane(Game& game);
+  void write_transport_lane(EditorGameBase& game);
 
-	void write_order_logs();
+	//void write_order_logs();
 
 	void read(FileRead&, Game&, MapObjectLoader&);
 	void write(FileWrite&, Game&, MapObjectSaver&) const;
