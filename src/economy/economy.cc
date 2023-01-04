@@ -881,6 +881,8 @@ if (warehouses_.size()>0)
 
 	// das spiel nach dem timer pausieren 
 	// dann python skript trigern um die daten hochzuladen und den plan runterzuladen
+
+	
 	if (((game.get_gametime().get()/1000-owner_.planning_timer.get()/1000)>=(1000)) 
 	    &&(warehouses_.size()>0)
 			&&(warehouses_[0]!=nullptr)
