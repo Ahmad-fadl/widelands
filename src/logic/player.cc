@@ -140,6 +140,7 @@ Player::Player(EditorGameBase& the_egbase,
                const TribeDescr& tribe_descr,
                const std::string& name)
    : planning_timer(0),
+	   check_plan_timer(0),
 	   uploads_count(1),
 	   egbase_(the_egbase),
      initialization_index_(initialization_index),

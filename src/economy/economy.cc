@@ -879,11 +879,89 @@ if (warehouses_.size()>0)
 	//owner_.test_productin_sites << game.get_gametime().get()/1000 <<"-" << owner_.planning_timer.get()/1000<< "=" << (game.get_gametime().get()/1000-owner_.planning_timer.get()/1000)-1000 << "\n";
 	//&&((game.get_gametime().get()/1000-owner_.planning_timer.get()/1000)<=(1005))
 
+
+// immer wieder sicher stellen dass die requests von ibp übernommen werden und die vom spiel gelöscht werden
+std::vector<std::pair<Widelands::DescriptionIndex,std::pair<Widelands::Serial,Widelands::Quantity> >>  requests_to_be_added_every_10sec(NULL) ;
+std::vector<Request *> requests_to_delete;
+	if (//((game.get_gametime().get()/1000-owner_.check_plan_timer.get()/1000)>=(50)) 
+	    (warehouses_.size()>0)
+			&&(warehouses_[0]!=nullptr)
+	    &&(owner_.tribe().descname()=="Empire")
+			&&(owner_.uploads_count>1)){
+owner_.check_plan_timer=game.get_gametime();
+	for (size_t j=1;j<owner_.ibp_plan.size();j++)
+    {		
+
+				for (Request* i : requests_){
+					Request& req = *i;
+					
+
+
+				if ((dynamic_cast<Widelands::Building*>(&(i->target()))!=nullptr)
+						&&(dynamic_cast<Widelands::Building*>(&(i->target()))->get_owner()!=nullptr)
+						&&(i->get_type()==WareWorker::wwWARE)
+						&&(warehouses_.size()>0)
+						&&(warehouses_[0]!=nullptr))
+			    {
+						
+						std::string ware_name= owner_.ibp_plan[j][0];
+						ware_name[0]=std::toupper(owner_.ibp_plan[j][0][0]);
+
+
+//if the request in the plann already exists only set count to same in the ibp plan
+//owner_.test_request_change << "owner_.ibp_plan_prodid : " + owner_.ibp_plan[j][0] + "originalrequest : " + game.descriptions().get_ware_descr(req.get_index())->descname()
+//                           << "owner_.ibp_plan_locid : " << Widelands::Serial(std::stoi(owner_.ibp_plan[j][1])) << "originalrequest : " <<req.target().serial() <<"\n" ;
+//													 owner_.test_request_change.flush();
+					if (( ware_name == game.descriptions().get_ware_descr(req.get_index())->descname())
+							&&(Widelands::Serial(std::stoi(owner_.ibp_plan[j][1]))==req.target().serial()))
+							{
+								  std::pair<Widelands::DescriptionIndex,std::pair<Widelands::Serial,Widelands::Quantity>> temp;
+									temp.first=game.descriptions().ware_index(owner_.ibp_plan[j][0]);
+									temp.second.first = Widelands::Serial(std::stoi(owner_.ibp_plan[j][1]));  
+									temp.second.second=  Widelands::Quantity(std::stoi(owner_.ibp_plan[j][3])) ;
+									requests_to_be_added_every_10sec.push_back(temp);
+									requests_to_delete.push_back(i);
+								  owner_.test_request_change << " deleed requests : " <<game.descriptions().get_ware_descr(req.get_index())->descname() << " , " <<req.target().serial() << "\n";
+							}
+
+					}
+
+		}
+  }
+	
+	}
+	//delete game requests
+	for(size_t i=0;i<requests_to_delete.size();i++){
+		remove_request(*requests_to_delete[i]);
+	}
+	
+
+	//füge die neuen requests hinzu
+for (auto i : requests_to_be_added_every_10sec){
+		if (dynamic_cast<Widelands::Warehouse*>(game.objects().get_object(i.second.first))!=nullptr)
+		{	
+			Widelands::Request newrequest (*(dynamic_cast<Widelands::PlayerImmovable*>(game.objects().get_object(i.second.first))) , i.first
+	, Widelands::Warehouse::request_cb, Widelands::WareWorker::wwWARE,true);
+	newrequest.set_count(i.second.second);
+	}
+		if (dynamic_cast<Widelands::ProductionSite*>(game.objects().get_object(i.second.first))!=nullptr)
+		{	
+			Widelands::Request newrequest (*(dynamic_cast<Widelands::PlayerImmovable*>(game.objects().get_object(i.second.first))) , i.first
+	, Widelands::ProductionSite::request_worker_callback ,Widelands::WareWorker::wwWARE,true);
+	newrequest.set_count(i.second.second);
+	}
+	owner_.test_productin_sites << "added request: prod_id : " << game.descriptions().get_ware_descr(i.first)->descname()
+	<< ",loc_id : " << i.second.first << "Count : " << i.second.second << "\n";
+	owner_.test_productin_sites.flush();
+
+}
+
+	
 	// das spiel nach dem timer pausieren 
 	// dann python skript trigern um die daten hochzuladen und den plan runterzuladen
 
-	
-	if (((game.get_gametime().get()/1000-owner_.planning_timer.get()/1000)>=(1000)) 
+
+	if (((game.get_gametime().get()/1000-owner_.planning_timer.get()/1000)>=(1300)) 
 	    &&(warehouses_.size()>0)
 			&&(warehouses_[0]!=nullptr)
 	    &&(owner_.tribe().descname()=="Empire"))
@@ -904,7 +982,7 @@ if (warehouses_.size()>0)
 		std::string python_trigger="python3 send_data_to_ibp.py "+ std::to_string(owner_.uploads_count);
 		system(python_trigger.c_str());
 		owner_.uploads_count++;
-		std::vector<std::vector<std::string>> ibp_plan;
+		//std::vector<std::vector<std::string>> ibp_plan;
 		bool dep_demand_file=false;
 		while (!dep_demand_file)
 		{
@@ -912,7 +990,8 @@ if (warehouses_.size()>0)
 			 if (entry.path().generic_string().find("new_depdemand.csv") != std::string::npos){
 			  owner_.test_productin_sites << "one plan" << "\n";
 				dep_demand_file=true;
-				ibp_plan = read_plan_csv("new_depdemand.csv");
+				owner_.ibp_plan = read_plan_csv("new_depdemand.csv");
+				
 				system("rm new_depdemand.csv");
 				//break;
 			 }
@@ -923,13 +1002,13 @@ if (warehouses_.size()>0)
 
 	std::vector<std::pair<Widelands::DescriptionIndex,std::pair<Widelands::Serial,Widelands::Quantity> >>  requests_to_be_added ;
 	
-	for (size_t j=1;j<ibp_plan.size();j++)
+	for (size_t j=1;j<owner_.ibp_plan.size();j++)
 {		
 
 	for (Request* i : requests_){
 		Request& req = *i;
 		
-
+	//owner_.ibp_plan[j][0][0]=std::toupper(owner_.ibp_plan[j][0][0]);
 
 	 if ((dynamic_cast<Widelands::Building*>(&(i->target()))!=nullptr)
 			&&(dynamic_cast<Widelands::Building*>(&(i->target()))->get_owner()!=nullptr)
@@ -939,14 +1018,14 @@ if (warehouses_.size()>0)
 {
 
 //if the request in the plann already exists only set count to same in the ibp plan
-//owner_.test_request_change << "ibp_plan_prodid : " + ibp_plan[j][0] + "originalrequest : " + game.descriptions().get_ware_descr(req.get_index())->descname()
-//                           << "ibp_plan_locid : " << Widelands::Serial(std::stoi(ibp_plan[j][1])) << "originalrequest : " <<req.target().serial() <<"\n" ;
+//owner_.test_request_change << "owner_.ibp_plan_prodid : " + owner_.ibp_plan[j][0] + "originalrequest : " + game.descriptions().get_ware_descr(req.get_index())->descname()
+//                           << "owner_.ibp_plan_locid : " << Widelands::Serial(std::stoi(owner_.ibp_plan[j][1])) << "originalrequest : " <<req.target().serial() <<"\n" ;
 //													 owner_.test_request_change.flush();
-if ((ibp_plan[j][0]==game.descriptions().get_ware_descr(req.get_index())->descname())
-    &&(Widelands::Serial(std::stoi(ibp_plan[j][1]))==req.target().serial()))
+if ((owner_.ibp_plan[j][0]==game.descriptions().get_ware_descr(req.get_index())->descname())
+    &&(Widelands::Serial(std::stoi(owner_.ibp_plan[j][1]))==req.target().serial()))
 		{
-		owner_.test_productin_sites << "prodid:"+ ibp_plan[j][0] + ", locid:" +ibp_plan[j][1]+ ibp_plan[j][2] + " request changed from count :" << req.get_count() << "to count"+ ibp_plan[j][3] << "\n";
-		req.set_count(std::stoi(ibp_plan[j][3]));
+		owner_.test_productin_sites << "prod_id : "+ owner_.ibp_plan[j][0] + ", loc_id : " +owner_.ibp_plan[j][1]+ owner_.ibp_plan[j][2] + " request changed from count :" << req.get_count() << "to count"+ owner_.ibp_plan[j][3] << "\n";
+		req.set_count(std::stoi(owner_.ibp_plan[j][3]));
     owner_.test_productin_sites.flush();
 		break;
 		}
@@ -957,9 +1036,9 @@ if ((ibp_plan[j][0]==game.descriptions().get_ware_descr(req.get_index())->descna
 
 
 std::pair<Widelands::DescriptionIndex,std::pair<Widelands::Serial,Widelands::Quantity>> temp;
-temp.first=game.descriptions().ware_index(ibp_plan[j][0]);
-temp.second.first = Widelands::Serial(std::stoi(ibp_plan[j][1]));  
-temp.second.second=  Widelands::Quantity(std::stoi(ibp_plan[j][3])) ;
+temp.first=game.descriptions().ware_index(owner_.ibp_plan[j][0]);
+temp.second.first = Widelands::Serial(std::stoi(owner_.ibp_plan[j][1]));  
+temp.second.second=  Widelands::Quantity(std::stoi(owner_.ibp_plan[j][3])) ;
 		requests_to_be_added.push_back(temp);
 
 		}
@@ -976,8 +1055,8 @@ for (auto i : requests_to_be_added){
 	, Widelands::ProductionSite::request_worker_callback ,Widelands::WareWorker::wwWARE,true);
 	newrequest.set_count(i.second.second);
 	}
-	owner_.test_productin_sites << "added request: prodid" << game.descriptions().get_ware_descr(i.first)->descname()
-	<< ",locid" << i.second.first << i.second.second << "\n";
+	owner_.test_productin_sites << "added request: prod_id : " << game.descriptions().get_ware_descr(i.first)->descname()
+	<< ",loc_id : " << i.second.first << "Count : " << i.second.second << "\n";
 	owner_.test_productin_sites.flush();
 
 }

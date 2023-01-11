@@ -56,7 +56,9 @@ struct Waterway;
 class Player {
 public:
 Time planning_timer;
+Time check_plan_timer;
 int uploads_count;
+std::vector<std::vector<std::string>> ibp_plan;
 std::ofstream logs ;
 std::ofstream orderslogs ;
 std::ofstream wares_relationships ;
