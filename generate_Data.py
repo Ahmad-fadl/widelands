@@ -56,18 +56,18 @@ def group_data_by_building(data):
 
 
 def int_to_time(input,hours_mapping):
-  return datetime.datetime(2024, 1, 1) + datetime.timedelta(hours=input/hours_mapping)
+  return datetime.datetime(2025, 1, 1) + datetime.timedelta(hours=input/hours_mapping)
 
 def hour_rounder(t):
     # Rounds to nearest hour by adding a timedelta hour if minute >= 30
     return (t.replace(second=0, microsecond=0, minute=0, hour=t.hour)
                +datetime.timedelta(hours=t.minute//30))  
 
-def map_to_real_time(data):
+def map_to_real_time(data,index):
   # hou much is an hour in game time 
   # for example 1hour = 2000 game time unite
   res=data
-  hour_in_numbers = (int(data[0]["time"].max()) - int(data[0]["time"].min())) / (365*24)
+  hour_in_numbers = (int(data[index]["time"].max()) - int(data[index]["time"].min())) / (365*24)
   for df in res :
     df.drop(index=df.index[-1],axis=0,inplace=True)
     df["time"]=df["time"].apply(int_to_time,args=[hour_in_numbers])
@@ -481,11 +481,13 @@ def write_all_data(directory,tribe):
 
   transfer_tl = read_transfer_transportation_lanes_from_csv_new(directory)
   Trans_lanes = read_transportation_lanes_from_csv(directory)
-  independent_demand=map_to_real_time(read_independent_demand_from_csv_new(directory))
-
-  a=map_to_real_time(read_data_from_files(directory))
+  independent_demand=read_independent_demand_from_csv_new(directory)
+  
+  a= read_data_from_files(directory)
+  
   for i in range(len(a)) :
-    if(a[i].loc[0,"name"].replace("_headquarters","")==tribe):
+    headquarter_index=a[i][a[i]["name"].str.endswith("headquarters")].index[0]
+    if(a[i].loc[headquarter_index,"name"].startswith(tribe)):
       data_index=i
   production_programs=read_production_programms_data_from_files(directory)
   for i in range(len(production_programs)):
@@ -494,26 +496,43 @@ def write_all_data(directory,tribe):
 
 
   for i in range(len(transfer_tl)):
-    if (transfer_tl[i].loc[0,"from_name"].startswith(tribe)):
+    headquarter_index=transfer_tl[i][transfer_tl[i]["from_name"]!= "constructionsite"].index[0]
+    if (transfer_tl[i].loc[headquarter_index,"from_name"].startswith(tribe)):
       t_l_index=i
-
+  trans_lanes_empty=False
   for i in range(len(Trans_lanes)):
-    if (Trans_lanes[i].loc[0,"from_name"].startswith(tribe)):
-      Trans_lanes_index=i
+    try:
+      headquarter_index=Trans_lanes[i][Trans_lanes[i]["from_name"] != "constructionsite"].index[0]
+    except Exception:
+      trans_lanes_empty=True
+
+    
+    if (not trans_lanes_empty):
+      if (Trans_lanes[i].loc[headquarter_index,"from_name"].startswith(tribe)) :
+          Trans_lanes_index=i
 
   for i in range(len(independent_demand)):
     if (independent_demand[i].loc[0,"name"].startswith(tribe)):
       independent_demand_index=i
-      
-  transfer_tl = transfer_tl[t_l_index].append(Trans_lanes[Trans_lanes_index])
-  transfer_tl=transfer_tl[transfer_tl["to_name"]!="constructionsite"]
+  if (not trans_lanes_empty): 
+    transfer_tl = transfer_tl[t_l_index].append(Trans_lanes[Trans_lanes_index])
+
+  a=map_to_real_time(a,data_index)
+  independent_demand=map_to_real_time(independent_demand,independent_demand_index)
+  
+  if (trans_lanes_empty):
+     transfer_tl=transfer_tl[t_l_index][transfer_tl[t_l_index]["to_name"]!="constructionsite"]
+  elif (not trans_lanes_empty):
+    transfer_tl=transfer_tl[transfer_tl["to_name"]!="constructionsite"]
+  
   transfer_tl=transfer_tl[transfer_tl["from_name"]!="constructionsite"]
   
   #transfer_tl.drop_duplicates(["ware","from_serial","to_serial"]).apply(lambda inputrow:write_pds_transport_lanes(inputrow),axis=1)
   #del transfer_tl
   
-
-  products=write_singel_string_wares_attribute_to_csv_as_IBPproduct(a[data_index].iloc[0]["wares"])
+  headquarter_index=a[data_index][a[data_index]["name"].str.endswith("headquarters")].index[0]
+  
+  products=write_singel_string_wares_attribute_to_csv_as_IBPproduct(a[data_index].iloc[headquarter_index]["wares"])
   products.to_csv("PRODUCT_timeseries.csv",sep=";",index=False,header=True)
   del products
   write_series_of_location_to_csv_as_IBPlocation(a[data_index][["serial","name"]].drop_duplicates(subset="serial"))
@@ -550,13 +569,20 @@ def write_all_data(directory,tribe):
   temp=temp.drop_duplicates()
   temp.to_csv("product_location_timeseries.csv",sep=";",header=True,index=False)
 
+  last_headquarter_index=a[data_index][a[data_index]["name"].str.endswith("headquarters")].index[-1]  
 
 
   rounded = a[data_index].copy(deep=True)
   rounded.loc[:, 'time'] = rounded.time.apply(datetime.datetime.date)
   rounded.loc[:, 'time'] = pd.to_datetime(rounded.time)+pd.offsets.MonthBegin(0)
-  write_init_key_figures(rounded.iloc[0])
-
+  write_init_key_figures(rounded.iloc[last_headquarter_index])
+  try:
+    last_warehouse_index=a[data_index][a[data_index]["name"].str.endswith("warehouse")].index[-1]  
+    rounded = a[data_index].copy(deep=True)
+    rounded.loc[:, 'time'] = rounded.time.apply(datetime.datetime.date)
+    rounded.loc[:, 'time'] = pd.to_datetime(rounded.time)+pd.offsets.MonthBegin(0)
+    write_init_key_figures(rounded.iloc[last_warehouse_index])
+  except:Exception
 
   rounded = independent_demand[independent_demand_index].copy(deep=True)
   rounded.loc[:, 'time'] = rounded.time.apply(datetime.datetime.date)

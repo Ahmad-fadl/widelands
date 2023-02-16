@@ -961,7 +961,7 @@ for (auto i : requests_to_be_added_every_10sec){
 	// dann python skript trigern um die daten hochzuladen und den plan runterzuladen
 
 
-	if (((game.get_gametime().get()/1000-owner_.planning_timer.get()/1000)>=(1300)) 
+	if (((game.get_gametime().get()/1000-owner_.planning_timer.get()/1000)>=(1000)) 
 	    &&(warehouses_.size()>0)
 			&&(warehouses_[0]!=nullptr)
 	    &&(owner_.tribe().descname()=="Empire"))
@@ -991,8 +991,9 @@ for (auto i : requests_to_be_added_every_10sec){
 			  owner_.test_productin_sites << "one plan" << "\n";
 				dep_demand_file=true;
 				owner_.ibp_plan = read_plan_csv("new_depdemand.csv");
-				
-				system("rm new_depdemand.csv");
+
+				system(std::string("mv new_depdemand.csv new_depdemand"+std::to_string(owner_.uploads_count)+".csv").c_str());
+				system(std::string("mv new_depdemand"+std::to_string(owner_.uploads_count)+".csv plans").c_str());
 				//break;
 			 }
 			}
@@ -1062,6 +1063,27 @@ for (auto i : requests_to_be_added){
 }
 
     requests_to_be_added.clear();
+  owner_.logs.close();
+	owner_.transport_lanes.close();
+	owner_.transfer_tl.close();
+	owner_.logs.open(owner_.get_name()+"Buildingslogs.csv", std::ofstream::out | std::ofstream::trunc);
+	owner_.transport_lanes.open(owner_.get_name()+"transport_lanes.csv", std::ofstream::out | std::ofstream::trunc);
+	owner_.transfer_tl.open(owner_.get_name()+"transfer_tl.csv", std::ofstream::out | std::ofstream::trunc);
+	
+  owner_.logs << "serial;name;time;ware_economy_serial;worker_economy_serial;position;reserved_by_worker;" //7
+	 << "workers;is_mine;is_port;needs_seafaring;"  /* "is market" is the last commun attribute -4 */
+	 <<"needs_water_ways;passable;is_production_site;is_warehouse;is_market;" //5
+	 << "ware_priorities;wares;"   /* warehous attributes 2 */ 
+	 << "input_queues;produced_Wares;workinpositions"             /* Productionsite attributes 3*/
+	 << "\n"; 
+	owner_.logs << "serial;name;time;ware_economy_serial;worker_economy_serial;position;reserved_by_worker;" //7
+	 << "workers;is_mine;is_port;needs_seafaring;"  /* "is market" is the last commun attribute -4 */
+	 <<"needs_water_ways;passable;is_production_site;is_warehouse;is_market;" //5
+	 << "ware_priorities;wares;"   /* warehous attributes 2 */ 
+	 << "input_queues;produced_Wares;workinpositions"             /* Productionsite attributes 3*/
+	 << "\n"; 
+
+
 		dynamic_cast<GameHost*>(game.game_controller())->end_forced_pause();
 } 
 		/*
@@ -1130,6 +1152,14 @@ dynamic_cast<Widelands::Building*>(&(newrequest.target()))->get_owner()->test_re
 			ss.unsigned_8(req.get_index());
 			ss.unsigned_32(req.target().serial());
 		}
+
+  if ((dynamic_cast<Widelands::Building*>(&(temp_req->target()))!=nullptr)
+		&&(dynamic_cast<Widelands::Building*>(&(temp_req->target()))->get_owner()!=nullptr)
+		&&(temp_req->get_type()==WareWorker::wwWARE)){
+		owner_.orderslogs  << game.descriptions().get_ware_descr(req.get_index())->descname() << " , serial : " <<req.target().serial() << " , "
+		<< req.target().descr().descname() << " , count:" << req.get_count()
+		<< "\n";
+   }
 
 		int32_t cost;  // estimated time in milliseconds to fulfill Request
 		Supply* const supp = find_best_supply(game, req, cost);

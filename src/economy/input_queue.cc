@@ -92,7 +92,7 @@ void InputQueue::request_callback(Game& game,
 		assert(index == worker->descr().worker_index());
 		type = wwWORKER;
 	}
-
+/*
 	if (game.descriptions().ware_exists(index) ){
     
    dynamic_cast<Building&>(target).get_owner()->orderslogs 
@@ -101,7 +101,7 @@ void InputQueue::request_callback(Game& game,
 	<< ";" << dynamic_cast<Building&>(target).get_owner()->egbase().get_gametime().get() << ";"
   << dynamic_cast<Building&>(target).get_owner()->egbase().descriptions().get_ware_descr(index)->name() 
 	<< ";" << r.get_count() << "\n";
-}
+}*/
 
 	InputQueue& iq = dynamic_cast<Building&>(target).inputqueue(index, type, &r);
 
