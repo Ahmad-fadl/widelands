@@ -967,6 +967,7 @@ for (auto i : requests_to_be_added_every_10sec){
 	    &&(owner_.tribe().descname()=="Empire"))
 	{
 		//after 10 plans quit
+		/*
 		if (owner_.uploads_count==10){
 			//system("python3 delete_master_data.py");
 			
@@ -975,6 +976,7 @@ for (auto i : requests_to_be_added_every_10sec){
 			GameExitConfirmBox exit_window1(*(dynamic_cast<UI::Panel*>(game.get_ibase())),*(game.get_igbase()));
 			exit_window1.clicked_ok();
 		}
+		*/
 		dynamic_cast<GameHost*>(game.game_controller())->force_pause();
 		owner_.test_productin_sites << owner_.uploads_count << "\n";
    	

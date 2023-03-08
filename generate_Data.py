@@ -56,7 +56,7 @@ def group_data_by_building(data):
 
 
 def int_to_time(input,hours_mapping):
-  return datetime.datetime(2025, 1, 1) + datetime.timedelta(hours=input/hours_mapping)
+  return datetime.datetime(2024, 1, 1) + datetime.timedelta(hours=input/hours_mapping)
 
 def hour_rounder(t):
     # Rounds to nearest hour by adding a timedelta hour if minute >= 30
@@ -569,7 +569,7 @@ def write_all_data(directory,tribe):
   temp=temp.drop_duplicates()
   temp.to_csv("product_location_timeseries.csv",sep=";",header=True,index=False)
 
-  last_headquarter_index=a[data_index][a[data_index]["name"].str.endswith("headquarters")].index[-1]  
+  last_headquarter_index=a[data_index][a[data_index]["name"].str.endswith("headquarters")].index[0]  
 
 
   rounded = a[data_index].copy(deep=True)
@@ -577,7 +577,7 @@ def write_all_data(directory,tribe):
   rounded.loc[:, 'time'] = pd.to_datetime(rounded.time)+pd.offsets.MonthBegin(0)
   write_init_key_figures(rounded.iloc[last_headquarter_index])
   try:
-    last_warehouse_index=a[data_index][a[data_index]["name"].str.endswith("warehouse")].index[-1]  
+    last_warehouse_index=a[data_index][a[data_index]["name"].str.endswith("warehouse")].index[0]  
     rounded = a[data_index].copy(deep=True)
     rounded.loc[:, 'time'] = rounded.time.apply(datetime.datetime.date)
     rounded.loc[:, 'time'] = pd.to_datetime(rounded.time)+pd.offsets.MonthBegin(0)

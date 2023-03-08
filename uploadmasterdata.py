@@ -6,9 +6,12 @@ import pyodata
 import requests
 import json
 import time
-
+with open("meta.json","r") as file:
+  meta=json.load(file)
+landscape=meta["landscape"]
+planningarea=meta["planningarea"]
 def write_dict_transportl_from_csv(row,dic):
-  dic["NavBG7SOURCELOCATION"].append({
+  dic["Nav"+planningarea+"SOURCELOCATION"].append({
       "LOCFR" :str(row["LOCFR"]),
       "PRDID": row["PRDID"],
       "LEADTIMETRANSPORTATION": str(row["LEADTIMETRANSPORTATION"]),
@@ -23,15 +26,20 @@ def upload_transportl(cl):
   dic["TransactionID"]=str(datetime.datetime.now())+"transl"
   dic["RequestedAttributes"]="LOCFR,PRDID,LEADTIMETRANSPORTATION,TRATIO,LOCID"
   dic["DoCommit"]=True
-  dic["NavBG7SOURCELOCATION"]=[]
+  dic["Nav"+planningarea+"SOURCELOCATION"]=[]
   location_prod.apply(lambda x: write_dict_transportl_from_csv(x,dic),axis=1)
-  create_request = cl.entity_sets.BG7SOURCELOCATIONTrans.create_entity()
+  #create_request = cl.entity_sets.BG7SOURCELOCATIONTrans.create_entity()
+  entity_type='SOURCELOCATIONTrans'
+
+  entity_set_name = planningarea + entity_type 
+  entity_set = getattr(cl.entity_sets, entity_set_name)
+  create_request = entity_set.create_entity()
   create_request.set(**dic)
   create_request.execute() 
 
 
 def write_dict_depdemand_from_csv(row,dic):
-  dic["NavBG7"].append({
+  dic["Nav"+planningarea+""].append({
       "PRDID": str(row["PRDID"]),
       "LOCID": str(row["LOCID"]),
       "INDEPENDENTDEMAND" : str(row ["INDEPENDENTDEMAND"]),
@@ -40,14 +48,14 @@ def write_dict_depdemand_from_csv(row,dic):
 
 
 def write_dict_prod_from_csv(row,dic):
-  dic["NavBG7PRODUCT"].append({
+  dic["Nav"+planningarea+"PRODUCT"].append({
       "PRDID": row["PRDID"],
       "PRDDESCR": row["PRDDESCR"]
     })
 
 
 def write_dict_pds_comp_from_csv(row,dic):
-  dic["NavBG7PRODUCTIONSOURCEITM"].append({
+  dic["Nav"+planningarea+"PRODUCTIONSOURCEITM"].append({
       "PRDID": row["PRDID"],
       "SOURCEID": row["SOURCEID"],
       "COMPONENTCOEFFICIENT" : str(row ["COMPONENTCOEFFICIENT"])
@@ -55,7 +63,7 @@ def write_dict_pds_comp_from_csv(row,dic):
 
 
 def write_dict_pds_header_from_csv(row,dic):
-  dic["NavBG7SOURCEPRODUCTION"].append({
+  dic["Nav"+planningarea+"SOURCEPRODUCTION"].append({
       "PRDID": row["PRDID"],
       "LOCID": str(row["LOCID"]),
       "SOURCEID": row["SOURCEID"],
@@ -68,12 +76,12 @@ def write_dict_pds_header_from_csv(row,dic):
     })
 
 def write_dict_location_from_csv(row,dic):
-  dic["NavBG7LOCATION"].append({"LOCID":str(row["LOCID"]),
+  dic["Nav"+planningarea+"LOCATION"].append({"LOCID":str(row["LOCID"]),
       "LOCDESCR": row["LOCDESCR"],
       "LOCTYPE":row["LOCTYPE"]})
 
 def write_dict_locationprod_from_csv(row,dic):
-  dic["NavBG7LOCATIONPRODUCT"].append({
+  dic["Nav"+planningarea+"LOCATIONPRODUCT"].append({
       "PRDID": row["PRDID"],
       "LOCID": str(row["LOCID"])
     })
@@ -84,9 +92,14 @@ def upload_products(cl):
   dic["TransactionID"]=str(datetime.datetime.now())+"product"
   dic["RequestedAttributes"]="PRDID,PRDDESCR"
   dic["DoCommit"]=True
-  dic["NavBG7PRODUCT"]=[]
+  dic["Nav"+planningarea+"PRODUCT"]=[]
   products.apply(lambda x: write_dict_prod_from_csv(x,dic),axis=1)
-  create_request = cl.entity_sets.BG7PRODUCTTrans.create_entity()
+  #create_request = cl.entity_sets.BG7PRODUCTTrans.create_entity()
+  entity_type='PRODUCTTrans'
+
+  entity_set_name = planningarea + entity_type 
+  entity_set = getattr(cl.entity_sets, entity_set_name)
+  create_request = entity_set.create_entity()
   create_request.set(**dic)
   create_request.execute() 
 
@@ -97,9 +110,14 @@ def upload_locations(cl):
   dic["TransactionID"]=str(datetime.datetime.now())+"location"
   dic["RequestedAttributes"]="LOCID,LOCDESCR,LOCTYPE"
   dic["DoCommit"]=True
-  dic["NavBG7LOCATION"]=[]
+  dic["Nav"+planningarea+"LOCATION"]=[]
   location.apply(lambda x: write_dict_location_from_csv(x,dic),axis=1)
-  create_request = cl.entity_sets.BG7LOCATIONTrans.create_entity()
+  #create_request = cl.entity_sets.BG7LOCATIONTrans.create_entity()
+  entity_type='LOCATIONTrans'
+
+  entity_set_name = planningarea + entity_type 
+  entity_set = getattr(cl.entity_sets, entity_set_name)
+  create_request = entity_set.create_entity()
   create_request.set(**dic)
   create_request.execute() 
 
@@ -109,9 +127,14 @@ def upload_locationprod(cl):
   dic["TransactionID"]=str(datetime.datetime.now())+"product_location"
   dic["RequestedAttributes"]="PRDID,LOCID"
   dic["DoCommit"]=True
-  dic["NavBG7LOCATIONPRODUCT"]=[]
+  dic["Nav"+planningarea+"LOCATIONPRODUCT"]=[]
   location_prod.apply(lambda x: write_dict_locationprod_from_csv(x,dic),axis=1)
-  create_request = cl.entity_sets.BG7LOCATIONPRODUCTTrans.create_entity()
+  #create_request = cl.entity_sets.BG7LOCATIONPRODUCTTrans.create_entity()
+  entity_type='LOCATIONPRODUCTTrans'
+
+  entity_set_name = planningarea + entity_type 
+  entity_set = getattr(cl.entity_sets, entity_set_name)
+  create_request = entity_set.create_entity()
   create_request.set(**dic)
   create_request.execute() 
 
@@ -121,9 +144,14 @@ def upload_pds_header(cl):
   dic["TransactionID"]=str(datetime.datetime.now())+"product_location"
   dic["RequestedAttributes"]="PRDID,SOURCEID,LOCID,PLEADTIME,PMAXLOTSIZE,PMINLOTSIZE,PRATIO,OUTPUTCOEFFICIENT,SOURCETYPE"
   dic["DoCommit"]=True
-  dic["NavBG7SOURCEPRODUCTION"]=[]
+  dic["Nav"+planningarea+"SOURCEPRODUCTION"]=[]
   pds_header.apply(lambda x: write_dict_pds_header_from_csv(x,dic),axis=1)
-  create_request = cl.entity_sets.BG7SOURCEPRODUCTIONTrans.create_entity()
+  #create_request = cl.entity_sets.BG7SOURCEPRODUCTIONTrans.create_entity()
+  entity_type='SOURCEPRODUCTIONTrans'
+
+  entity_set_name = planningarea + entity_type 
+  entity_set = getattr(cl.entity_sets, entity_set_name)
+  create_request = entity_set.create_entity()
   create_request.set(**dic)
   create_request.execute() 
 
@@ -133,9 +161,14 @@ def upload_pds_comp(cl):
   dic["TransactionID"]=str(datetime.datetime.now())+"product_location"
   dic["RequestedAttributes"]="PRDID,SOURCEID,COMPONENTCOEFFICIENT"
   dic["DoCommit"]=True
-  dic["NavBG7PRODUCTIONSOURCEITM"]=[]
+  dic["Nav"+planningarea+"PRODUCTIONSOURCEITM"]=[]
   pds_comp.apply(lambda x: write_dict_pds_comp_from_csv(x,dic),axis=1)
-  create_request = cl.entity_sets.BG7PRODUCTIONSOURCEITMTrans.create_entity()
+  #create_request = cl.entity_sets.BG7PRODUCTIONSOURCEITMTrans.create_entity()
+  entity_type='PRODUCTIONSOURCEITMTrans'
+
+  entity_set_name = planningarea + entity_type 
+  entity_set = getattr(cl.entity_sets, entity_set_name)
+  create_request = entity_set.create_entity()
   create_request.set(**dic)
   create_request.execute() 
 
@@ -145,13 +178,13 @@ def upload_indep_demand():
   with open('auth.txt') as f:
     auth = [tuple(map(str, i.split(','))) for i in f]
   inddemand=pd.read_csv("pds_demand_key_figures_timeseries.csv",sep=";")
-  url = 'https://o22-001-api.devsys.net.sap/sap/opu/odata/IBP/PLANNING_DATA_API_SRV/BG7Trans'
+  url = 'https://'+landscape+'-api.devsys.net.sap/sap/opu/odata/IBP/PLANNING_DATA_API_SRV/"+planningarea+"Trans'
   myobj = {
   "Transactionid": str(datetime.datetime.now()),
   'AggregationLevelFieldsString': 'LOCID,PRDID,INDEPENDENTDEMAND,PERIODID0_TSTAMP',
   "DoCommit": True,
   #'VersionID': 'B',
-  'NavBG7': []
+  'Nav'+planningarea: []
   }
   inddemand.apply(lambda x: write_dict_depdemand_from_csv(x,myobj),axis=1)
   s = requests.Session()
@@ -163,7 +196,7 @@ def upload_indep_demand():
 
 
 def write_dict_init_keyfig_from_csv(row,dic):
-  dic["NavBG7"].append({
+  dic["Nav"+planningarea].append({
       "PRDID": str(row["PRDID"]),
       "LOCID": str(row["LOCID"]),
       "INITIALINVENTORY" : str(row ["INITIALINVENTORY"]),
@@ -175,13 +208,13 @@ def upload_init_keyfigures():
   with open('auth.txt') as f:
     auth = [tuple(map(str, i.split(','))) for i in f]
   inddemand=pd.read_csv("pds_init_key_figures_timeseries.csv",sep=";")
-  url = 'https://o22-001-api.devsys.net.sap/sap/opu/odata/IBP/PLANNING_DATA_API_SRV/BG7Trans'
+  url = 'https://'+landscape+'-api.devsys.net.sap/sap/opu/odata/IBP/PLANNING_DATA_API_SRV/"+planningarea+"Trans'
   myobj = {
   "Transactionid": str(datetime.datetime.now())+"init",
   'AggregationLevelFieldsString': 'LOCID,PRDID,INITIALINVENTORY,PERIODID0_TSTAMP',
   "DoCommit": True,
   #'VersionID': 'B',
-  'NavBG7': []
+  'Nav'+planningarea: []
   }
   inddemand.apply(lambda x: write_dict_init_keyfig_from_csv(x,myobj),axis=1)
   s = requests.Session()
@@ -193,7 +226,7 @@ def upload_init_keyfigures():
 
 
 def upload_all_data():
-  SERVICE_URL = 'https://o22-001-api.devsys.net.sap/sap/opu/odata/IBP/MASTER_DATA_API_SRV'
+  SERVICE_URL = 'https://'+landscape+'-api.devsys.net.sap/sap/opu/odata/IBP/MASTER_DATA_API_SRV'
 
 
   session = requests.Session()

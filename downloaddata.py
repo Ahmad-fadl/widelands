@@ -2,8 +2,13 @@ import pandas as pd
 import pyodata
 import requests
 import json
+with open("meta.json","r") as file:
+  meta=json.load(file)
+landscape=meta["landscape"]
+planningarea=meta["planningarea"]
+
 def download_dep_Demand():
-  SERVICE_URL = 'https://o22-001-api.devsys.net.sap/sap/opu/odata/IBP/EXTRACT_ODATA_SRV/'
+  SERVICE_URL = 'https://'+landscape+'-api.devsys.net.sap/sap/opu/odata/IBP/EXTRACT_ODATA_SRV/'
 
 
   session = requests.Session()
@@ -16,7 +21,10 @@ def download_dep_Demand():
   session.headers.update({'x-csrf-token': token})
   cl = pyodata.Client(SERVICE_URL, session)
 
-  data=cl.entity_sets.BG7.get_entities().select('PRDID,LOCID,DEPENDENTDEMAND,LOCDESCR').execute()
+  #data=cl.entity_sets.BG7.get_entities().select('PRDID,LOCID,DEPENDENTDEMAND,LOCDESCR').execute()
+
+  entity_set = getattr(cl.entity_sets, planningarea)
+  data=entity_set.get_entities().select('PRDID,LOCID,DEPENDENTDEMAND,LOCDESCR').execute()
 
   keyfigures= pd.DataFrame(columns=['PRDID','LOCID','LOCDESCR','DEPENDENTDEMAND'])
   counter=0
